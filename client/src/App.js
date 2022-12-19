@@ -5,12 +5,39 @@ import IndexPage from "./components/IndexPage";
 import InstallPage from "./components/InstallPage";
 import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
-
-const name = "JP9";
-const isInstalled = false;
-const isAuth = false;
+import { useEffect, useState } from "react";
+import sendNotification from "./components/Notification";
 
 function App() {
+  const name = "JP9";
+
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+  const [message, setMessage] = useState(false);
+
+  const checkInstalled = async () => {
+    let res = await fetch("/api", {
+      method: "GET",
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+      },
+    });
+    let resJson = await res.json();
+    if (resJson.message === "The app is already installed!") {
+      setIsInstalled(true);
+    } else {
+      setMessage(["The app isn't installed", "danger"]);
+    }
+  };
+
+  useEffect(() => {
+    message && sendNotification(message);
+  }, [message]);
+
+  useEffect(() => {
+    !isInstalled && checkInstalled();
+  }, [isInstalled]);
+
   return (
     <div
       id="page-container"
