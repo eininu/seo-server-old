@@ -1,3 +1,5 @@
+import NavBar from "./NavBar";
+
 const Header = () => {
   return (
     <header id="page-header">
@@ -248,6 +250,7 @@ const Header = () => {
           </div>
         </div>
       </div>
+      <NavBar />
     </header>
   );
 };
