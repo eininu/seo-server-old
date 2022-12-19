@@ -17,7 +17,6 @@ function App() {
       className={`page-header-dark ${isAuth ? "main-content-boxed" : ""}`}
     >
       {isInstalled && isAuth && <Header params={{ name }} />}
-
       {!isInstalled && <InstallPage />}
       {isInstalled && !isAuth && <LoginPage />}
       {isInstalled && isAuth && (
@@ -28,7 +27,6 @@ function App() {
           </Routes>
         </BrowserRouter>
       )}
-
       {isInstalled && isAuth && <Footer params={{ name }} />}
     </div>
   );
