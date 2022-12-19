@@ -3,10 +3,12 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import IndexPage from "./components/IndexPage";
 
+const name = 'JP9'
+
 function App() {
   return (
     <div id="page-container" className="page-header-dark main-content-boxed">
-      <Header />
+      <Header params={{ name }} />
 
       <BrowserRouter>
         <Routes>
@@ -14,7 +16,7 @@ function App() {
         </Routes>
       </BrowserRouter>
 
-      <Footer />
+      <Footer params={{ name }}/>
     </div>
   );
 }
