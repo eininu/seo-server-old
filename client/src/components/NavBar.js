@@ -17,7 +17,10 @@ const NavBar = () => {
         <div id="main-navigation" className="d-none d-lg-block mt-2 mt-lg-0">
           <ul className="nav-main nav-main-dark nav-main-horizontal nav-main-hover">
             <li className="nav-main-item">
-              <a className="nav-main-link active" href="gs_backend_boxed.html">
+              <a
+                className="nav-main-link active"
+                href="be_pages_dashboard.html"
+              >
                 <i className="nav-main-link-icon si si-speedometer"></i>
                 <span className="nav-main-link-name">Dashboard</span>
               </a>
