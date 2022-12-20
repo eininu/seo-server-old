@@ -6,7 +6,7 @@ import InstallPage from "./components/InstallPage";
 import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
 import { useEffect, useState } from "react";
-import sendNotification from "./components/Notification";
+// import sendNotification from "./components/Notification";
 import LogoutPage from "./components/LogoutPage";
 import SettingsPage from "./components/SettingsPage";
 import WebsitesPage from "./components/WebsitesPage";
@@ -16,7 +16,7 @@ function App() {
 
   const [isInstalled, setIsInstalled] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
-  const [message, setMessage] = useState(false);
+  // const [message, setMessage] = useState(false);
 
   const checkInstalled = async () => {
     let res = await fetch("/api/setup", {
@@ -42,9 +42,9 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    message && sendNotification(message);
-  }, [message]);
+  // useEffect(() => {
+  //   message && sendNotification(message);
+  // }, [message]);
 
   useEffect(() => {
     isInstalled ? checkAuth() : checkInstalled();
