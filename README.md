@@ -96,3 +96,7 @@ server {
 - `sudo systemctl restart nginx` # reboot nginx
 
 - Congratulations! Your app is work just by http://server_ip and app api works here http://server_ip/api # of course here instead `server_ip` should be your server ip address
+
+## 2. Usage
+For using `websites` - add following line to your nginx config for read configs from your app (at the end of http param).
+- `include /home/ein/jp9.org/nginx-configs/*.conf;`

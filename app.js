@@ -12,6 +12,7 @@ var indexRouter = require("./routes/index");
 const setupRouter = require("./routes/setup");
 const authRouter = require("./routes/auth");
 const settingsRouter = require("./routes/settings");
+const websitesRouter = require("./routes/websites");
 
 var app = express();
 
@@ -40,6 +41,7 @@ app.use(isAuth, (req, res, next) => {
 
 app.use("/api", indexRouter);
 app.use("/api/settings", settingsRouter);
+app.use("/api/websites", websitesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

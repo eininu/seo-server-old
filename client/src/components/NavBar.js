@@ -23,6 +23,12 @@ const NavBar = () => {
               </a>
             </li>
             <li className="nav-main-item">
+              <a className="nav-main-link" href="/websites">
+                <i className="nav-main-link-icon si si-globe"></i>
+                <span className="nav-main-link-name">Websites</span>
+              </a>
+            </li>
+            <li className="nav-main-item">
               <a className="nav-main-link" href="/settings">
                 <i className="nav-main-link-icon si si-settings"></i>
                 <span className="nav-main-link-name">Settings</span>

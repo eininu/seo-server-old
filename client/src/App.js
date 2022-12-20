@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import sendNotification from "./components/Notification";
 import LogoutPage from "./components/LogoutPage";
 import SettingsPage from "./components/SettingsPage";
+import WebsitesPage from "./components/WebsitesPage";
 
 function App() {
   const name = "JP9";
@@ -62,6 +63,7 @@ function App() {
           <Routes>
             <Route path="/" element={<IndexPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/websites" element={<WebsitesPage />} />
             <Route path="/logout" element={<LogoutPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
