@@ -1,4 +1,48 @@
+import { useEffect, useState } from "react";
+import sendNotification from "../Notification";
+
 const InstallPage = () => {
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState(false);
+  const [tgToken, setTgToken] = useState("");
+  const [tgUserId, setTgUserId] = useState("");
+  const [tgAuthCode, setTgAuthCode] = useState("");
+  const [authCodeSent, setAuthCodeSent] = useState(false);
+
+  useEffect(() => {
+    message && sendNotification(message);
+  }, [message]);
+
+  let handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      let body = {
+        password,
+        tgToken,
+        tgUserId,
+        tgAuthCode,
+      };
+
+      let res = await fetch("/api/setup", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify(body),
+      });
+      let resJson = await res.json();
+      if (resJson.message === "Auth code sent") {
+        setAuthCodeSent(true);
+      }
+      if (resJson.message === "Successfully configured!") {
+        window.location.reload();
+      }
+      setMessage([resJson.message, "info"]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <main id="main-container">
       <div className="row g-0 justify-content-center">
@@ -19,98 +63,11 @@ const InstallPage = () => {
               action="op_installation.html"
               method="POST"
               noValidate="novalidate"
+              onSubmit={handleSubmit}
             >
               <div className="block block-rounded">
                 <div className="block-header block-header-default">
-                  <h3 className="block-title">1. Database</h3>
-                </div>
-                <div className="block-content">
-                  <div className="row items-push">
-                    <div className="col-lg-4">
-                      <p className="fs-sm text-muted">
-                        Please pay extra attention because adding the correct
-                        database info is vital for a successful app
-                        installation.
-                      </p>
-                    </div>
-                    <div className="col-lg-6 offset-lg-1">
-                      <div className="mb-4">
-                        <label className="form-label" htmlFor="install-db-name">
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control form-control-lg"
-                          id="install-db-name"
-                          name="install-db-name"
-                          placeholder="What's the name of your database?"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label className="form-label" htmlFor="install-db-host">
-                          Host
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control form-control-lg"
-                          id="install-db-host"
-                          name="install-db-host"
-                          placeholder="Leave empty for 'localhost'"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label
-                          className="form-label"
-                          htmlFor="install-db-prefix"
-                        >
-                          Table Prefix
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control form-control-lg"
-                          id="install-db-prefix"
-                          name="install-db-prefix"
-                          placeholder="Leave empty for 'app_'"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label
-                          className="form-label"
-                          htmlFor="install-db-username"
-                        >
-                          Username
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control form-control-lg"
-                          id="install-db-username"
-                          name="install-db-username"
-                          placeholder="Database username"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label
-                          className="form-label"
-                          htmlFor="install-db-password"
-                        >
-                          Password
-                        </label>
-                        <input
-                          type="password"
-                          className="form-control form-control-lg"
-                          id="install-db-password"
-                          name="install-db-password"
-                          placeholder="Database password"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="block block-rounded">
-                <div className="block-header block-header-default">
-                  <h3 className="block-title">2. Administrator</h3>
+                  <h3 className="block-title">1. Administrator</h3>
                 </div>
                 <div className="block-content">
                   <div className="row items-push">
@@ -124,20 +81,6 @@ const InstallPage = () => {
                       <div className="mb-4">
                         <label
                           className="form-label"
-                          htmlFor="install-admin-email"
-                        >
-                          Email
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control form-control-lg"
-                          id="install-admin-email"
-                          name="install-admin-email"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label
-                          className="form-label"
                           htmlFor="install-admin-password"
                         >
                           Password
@@ -147,22 +90,93 @@ const InstallPage = () => {
                           className="form-control form-control-lg"
                           id="install-admin-password"
                           name="install-admin-password"
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                          }}
                         />
                       </div>
-                      <div className="mb-4">
-                        <label
-                          className="form-label"
-                          htmlFor="install-admin-password-confirm"
-                        >
-                          Password Confirmation
-                        </label>
-                        <input
-                          type="password"
-                          className="form-control form-control-lg"
-                          id="install-admin-password-confirm"
-                          name="install-admin-password-confirm"
-                        />
-                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="block block-rounded">
+                <div className="block-header block-header-default">
+                  <h3 className="block-title">2. Telegram</h3>
+                </div>
+                <div className="block-content">
+                  <div className="row items-push">
+                    <div className="col-lg-4">
+                      <p className="fs-sm text-muted">
+                        It helps to get OTG keys and another useful information
+                        from app
+                      </p>
+                    </div>
+                    <div className="col-lg-6 offset-lg-1">
+                      {!authCodeSent && (
+                        <>
+                          <div className="mb-4">
+                            <label
+                              className="form-label"
+                              htmlFor="install-db-name"
+                            >
+                              tgToken
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control form-control-lg"
+                              id="install-db-name"
+                              name="install-db-name"
+                              value={tgToken}
+                              placeholder="tgToken"
+                              onChange={(e) => {
+                                setTgToken(e.target.value);
+                              }}
+                            />
+                          </div>
+                          <div className="mb-4">
+                            <label
+                              className="form-label"
+                              htmlFor="install-db-host"
+                            >
+                              tgUserId
+                            </label>
+                            <input
+                              type="text"
+                              value={tgUserId}
+                              placeholder="tgUserId"
+                              onChange={(e) => {
+                                setTgUserId(e.target.value);
+                              }}
+                              className="form-control form-control-lg"
+                              id="install-db-host"
+                              name="install-db-host"
+                            />
+                          </div>
+                        </>
+                      )}
+                      {authCodeSent && (
+                        <div className="mb-4">
+                          <label
+                            className="form-label"
+                            htmlFor="install-db-host"
+                          >
+                            AuthCode
+                          </label>
+                          <input
+                            className="form-control form-control-lg"
+                            id="install-db-host"
+                            name="install-db-host"
+                            type="text"
+                            value={tgAuthCode}
+                            placeholder="tgAuthCode"
+                            onChange={(e) => {
+                              setTgAuthCode(e.target.value);
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

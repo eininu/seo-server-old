@@ -7,6 +7,8 @@ import LoginPage from "./components/LoginPage";
 import NotFound from "./components/NotFound";
 import { useEffect, useState } from "react";
 import sendNotification from "./components/Notification";
+import LogoutPage from "./components/LogoutPage";
+import SettingsPage from "./components/SettingsPage";
 
 function App() {
   const name = "JP9";
@@ -16,17 +18,26 @@ function App() {
   const [message, setMessage] = useState(false);
 
   const checkInstalled = async () => {
-    let res = await fetch("/api", {
-      method: "GET",
+    let res = await fetch("/api/setup", {
+      method: "POST",
       headers: {
         "content-type": "application/json; charset=utf-8",
       },
+      body: "",
     });
     let resJson = await res.json();
     if (resJson.message === "The app is already installed!") {
       setIsInstalled(true);
     } else {
-      setMessage(["The app isn't installed", "danger"]);
+      // setMessage(["The app isn't installed", "danger"]);
+    }
+  };
+
+  const checkAuth = async () => {
+    let res = await fetch("/api/");
+    let resJson = await res.json();
+    if (resJson.message === "hi") {
+      setIsAuth(true);
     }
   };
 
@@ -35,8 +46,8 @@ function App() {
   }, [message]);
 
   useEffect(() => {
-    !isInstalled && checkInstalled();
-  }, [isInstalled]);
+    isInstalled ? checkAuth() : checkInstalled();
+  }, [isAuth, isInstalled]);
 
   return (
     <div
@@ -45,11 +56,13 @@ function App() {
     >
       {isInstalled && isAuth && <Header params={{ name }} />}
       {!isInstalled && <InstallPage />}
-      {isInstalled && !isAuth && <LoginPage />}
+      {isInstalled && !isAuth && <LoginPage is_auth={{ status: isAuth }} />}
       {isInstalled && isAuth && (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<IndexPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/logout" element={<LogoutPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

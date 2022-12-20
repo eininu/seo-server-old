@@ -6,8 +6,12 @@ var logger = require("morgan");
 var { Liquid } = require("liquidjs");
 var engine = new Liquid();
 
+const { isInstalled, isAuth } = require("./middlewares");
+
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+const setupRouter = require("./routes/setup");
+const authRouter = require("./routes/auth");
+const settingsRouter = require("./routes/settings");
 
 var app = express();
 
@@ -22,8 +26,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/api/setup", isInstalled, setupRouter);
+
+app.use(isInstalled, (req, res, next) => {
+  next();
+});
+
+app.use("/api/auth", authRouter);
+
+app.use(isAuth, (req, res, next) => {
+  next();
+});
+
 app.use("/api", indexRouter);
-app.use("/api/users", usersRouter);
+app.use("/api/settings", settingsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -39,7 +55,7 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   // res.render("error", { message: err.message, error_status: err.status });
-  res.send(err);
+  res.send(err.message);
 });
 
 module.exports = app;
