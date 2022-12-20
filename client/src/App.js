@@ -10,16 +10,18 @@ import { useEffect, useState } from "react";
 import LogoutPage from "./components/LogoutPage";
 import SettingsPage from "./components/SettingsPage";
 import WebsitesPage from "./components/WebsitesPage";
+import sendNotification from "./components/Notification";
+import Loader from "./components/Loader";
 
 function App() {
   const name = "JP9";
 
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
-  // const [message, setMessage] = useState(false);
+  const [appStatus, setAppStatus] = useState(undefined);
 
-  const checkInstalled = async () => {
-    let res = await fetch("/api/setup", {
+  const checkAppStatus = async () => {
+    // sendNotification(`${appStatus}`);
+
+    let res = await fetch("/api", {
       method: "POST",
       headers: {
         "content-type": "application/json; charset=utf-8",
@@ -27,51 +29,60 @@ function App() {
       body: "",
     });
     let resJson = await res.json();
-    if (resJson.message === "The app is already installed!") {
-      setIsInstalled(true);
-    } else {
-      // setMessage(["The app isn't installed", "danger"]);
-    }
-  };
 
-  const checkAuth = async () => {
-    let res = await fetch("/api/");
-    let resJson = await res.json();
+    if (resJson.message === "The app isn't installed!") {
+      return setAppStatus("not installed");
+    }
+
+    if (resJson.message === "Unauthorized!") {
+      return setAppStatus("not authorized");
+    }
+
     if (resJson.message === "hi") {
-      setIsAuth(true);
+      return setAppStatus("ok");
     }
   };
-
-  // useEffect(() => {
-  //   message && sendNotification(message);
-  // }, [message]);
 
   useEffect(() => {
-    isInstalled ? checkAuth() : checkInstalled();
-  }, [isAuth, isInstalled]);
+    if (appStatus === undefined) {
+      checkAppStatus();
+    }
+  }, []);
 
-  return (
-    <div
-      id="page-container"
-      className={`page-header-dark ${isAuth ? "main-content-boxed" : ""}`}
-    >
-      {isInstalled && isAuth && <Header params={{ name }} />}
-      {!isInstalled && <InstallPage />}
-      {isInstalled && !isAuth && <LoginPage is_auth={{ status: isAuth }} />}
-      {isInstalled && isAuth && (
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<IndexPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/websites" element={<WebsitesPage />} />
-            <Route path="/logout" element={<LogoutPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      )}
-      {isInstalled && isAuth && <Footer params={{ name }} />}
-    </div>
-  );
+  if (appStatus === undefined) {
+    return <Loader />;
+  }
+
+  if (appStatus === "not installed") {
+    return <InstallPage />;
+  }
+
+  if (appStatus === "not authorized") {
+    return <LoginPage is_auth={{ status: false }} />;
+  }
+
+  if (appStatus === "ok") {
+    return (
+      <>
+        <div
+          id="page-container"
+          className="page-header-dark main-content-boxed"
+        >
+          <Header params={{ name }} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<IndexPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/websites" element={<WebsitesPage />} />
+              <Route path="/logout" element={<LogoutPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+          <Footer params={{ name }} />
+        </div>
+      </>
+    );
+  }
 }
 
 export default App;
