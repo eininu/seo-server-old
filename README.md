@@ -72,11 +72,13 @@ So, now you can exactly check your api connection by server_ip:3001. It should w
 - in server param change root param to your build client file.
 ```
 server {
-        server_name 176.97.71.227;
+        server_name 0.0.0.0;
         
         location / {
                 root /home/ein/jp9.org/client/build;
                 index index.html;
+                
+                try_files $uri /index.html;
         }
 
         location /api/ {
@@ -87,6 +89,8 @@ server {
         listen [::]:80;
 }
 ```
+  where instead 0.0.0.0 use your server ip address
+
 - by command `sudo nano /etc/nginx/nginx.conf` change param `user` to your username (for me its `ein`)
 - `sudo nginx -t` # to check if config have some troubles
 - `sudo systemctl restart nginx` # reboot nginx
