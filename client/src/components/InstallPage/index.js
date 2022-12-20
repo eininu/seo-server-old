@@ -73,8 +73,8 @@ const InstallPage = () => {
                   <div className="row items-push">
                     <div className="col-lg-4">
                       <p className="fs-sm text-muted">
-                        Please add your email and a strong password to create
-                        the administrator account.
+                        Please add strong password to create the administrator
+                        account.
                       </p>
                     </div>
                     <div className="col-lg-6 offset-lg-1">
