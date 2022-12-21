@@ -21,31 +21,31 @@ const AddWebsiteForm = () => {
   const addWebsiteHandler = async (e) => {
     e.preventDefault();
 
-    if (website.length === 0) {
-      sendNotification(["Website cannot be blank", "danger"]);
-    } else if (!nginxConfig) {
-      sendNotification(["Nginx Config cannot be blank", "danger"]);
-    } else {
-      try {
-        let body = {
-          website: website,
-          nginx_config: nginxConfig,
-        };
-
-        let res = await fetch("/api/websites/add", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json; charset=utf-8",
-          },
-          body: JSON.stringify(body),
-        });
-        let resJson = await res.json();
-
-        sendNotification(`${resJson.message}`, "info");
-      } catch (err) {
-        sendNotification(`${err}`);
-      }
-    }
+    // if (website.length === 0) {
+    //   sendNotification(["Website cannot be blank", "danger"]);
+    // }if (!nginxConfig) {
+    //   sendNotification(["Nginx Config cannot be blank", "danger"]);
+    // } else {
+    //   try {
+    //     let body = {
+    //       website: website,
+    //       nginx_config: nginxConfig,
+    //     };
+    //
+    //     let res = await fetch("/api/websites/add", {
+    //       method: "POST",
+    //       headers: {
+    //         "content-type": "application/json; charset=utf-8",
+    //       },
+    //       body: JSON.stringify(body),
+    //     });
+    //     let resJson = await res.json();
+    //
+    //     sendNotification(`${resJson.message}`, "info");
+    //   } catch (err) {
+    //     sendNotification(`${err}`);
+    //   }
+    // }
   };
 
   return (
