@@ -133,3 +133,7 @@ dist
 .idea
 
 /database/database.sqlite
+
+# websites app
+/websites/*
+/nginx-configs/*
