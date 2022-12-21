@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import LogoutPage from "./components/LogoutPage";
 import SettingsPage from "./components/SettingsPage";
 import WebsitesPage from "./components/WebsitesPage";
-import sendNotification from "./components/Notification";
 import Loader from "./components/Loader";
 
 function App() {
@@ -34,7 +33,10 @@ function App() {
       return setAppStatus("not installed");
     }
 
-    if (resJson.message === "Unauthorized!") {
+    if (
+      resJson.message === "Unauthorized!" ||
+      resJson.message === "No token provided!"
+    ) {
       return setAppStatus("not authorized");
     }
 
