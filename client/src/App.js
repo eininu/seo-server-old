@@ -52,6 +52,7 @@ function App() {
   }, []);
 
   if (appStatus === undefined) {
+    console.log(appStatus);
     return <Loader />;
   }
 

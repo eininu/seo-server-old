@@ -34,4 +34,30 @@ router.get("/create_table", async (req, res) => {
   return res.send({ message: "Database table created successfully" });
 });
 
+router.get("/drop_table", async (req, res) => {
+  await dbRun(`DROP TABLE IF EXISTS websites`);
+
+  return res.send({ message: "Good!" });
+});
+
+router.post("/add", (req, res) => {
+  const website = req.body.website;
+  const nginxConfig = req.body.nginx_config;
+  // const archive = req.body.website_archive;
+
+  if (website.length === 0) {
+    return res.send({ message: "Website cannot be blank" });
+  }
+
+  if (nginxConfig === undefined) {
+    return res.send({ message: "Nginx Config cannot be blank" });
+  }
+
+  // if (archive === undefined) {
+  //   return res.send({ message: "website archive cannot be blank" });
+  // }
+
+  res.send({ message: "ok" });
+});
+
 module.exports = router;
