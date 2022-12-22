@@ -45,6 +45,17 @@ const Websites = () => {
       sendNotification(resJson.message);
     }
   };
+  const [settings, setSettings] = useState([]);
+
+  const getSettings = async () => {
+    let res = await fetch("/api/websites/list");
+    let resJson = await res.json();
+    setSettings(resJson);
+  };
+
+  useEffect(() => {
+    getSettings();
+  }, []);
 
   return (
     <div className="content">
@@ -75,6 +86,61 @@ const Websites = () => {
               {appState === "configured" && (
                 <p className="text-muted">Here you can see your websites.</p>
               )}
+              <div className="block block-rounded">
+                <div className="block-content">
+                  <table className="table table-vcenter">
+                    <thead>
+                      <tr>
+                        <th>Param</th>
+                        <th className="text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {settings.map((param, index) => {
+                        return (
+                          <tr key={index}>
+                            <td>{param.website}</td>
+                            <td className="text-center">
+                              <div className="btn-group">
+                                <form
+                                  onSubmit={(e) => {
+                                    e.preventDefault();
+                                    fetch(
+                                      "/api/websites/delete/" + param.website
+                                    ).then((r) => {
+                                      if (r.status === 200) {
+                                        sendNotification(
+                                          `Website ${param.website} deleted successfully`
+                                        );
+                                        getSettings();
+                                      }
+                                    });
+                                  }}
+                                >
+                                  <button
+                                    type="submit"
+                                    className="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
+                                    data-bs-toggle="tooltip"
+                                    aria-label="Remove Client"
+                                    data-bs-original-title="Remove Client"
+                                    name={param.key}
+                                    onClick={(e) => {
+                                      // deleteSettingHandler();
+                                      console.log(param.key);
+                                    }}
+                                  >
+                                    <i className="fa fa-fw fa-times"></i>
+                                  </button>
+                                </form>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
               {appState === "not configured" && (
                 <div className="row">
                   <div className="col-md-12">

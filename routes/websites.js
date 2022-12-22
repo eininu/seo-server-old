@@ -44,6 +44,15 @@ router.get("/", async (req, res) => {
   return res.send({ message: "ok" });
 });
 
+router.get("/list", async (req, res) => {
+  const websites = [];
+
+  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
+    websites.push({ website: el.split(".conf")[0] });
+  });
+  res.json(websites);
+});
+
 router.get("/create_table", async (req, res) => {
   let tableExistings = await checkIfTableExists();
 
