@@ -44,22 +44,22 @@ router.get("/drop_table", async (req, res) => {
 });
 
 router.post("/add", upload.any(), (req, res) => {
-  // const website = req.body.website;
-  // const nginxConfig = req.body.nginx_config;
-  // const archive = req.body.website_archive;
+  const website = req.body.website;
+  const nginxConfig = req.body.nginx_config;
+  const files = req.files;
 
-  // if (website.length === 0) {
-  //   return res.send({ message: "Website cannot be blank" });
-  // }
-  //
-  // if (nginxConfig === undefined) {
-  //   return res.send({ message: "Nginx Config cannot be blank" });
-  // }
+  if (website.length === 0) {
+    return res.send({ message: "Website cannot be blank" });
+  }
 
-  // if (archive === undefined) {
-  //   return res.send({ message: "website archive cannot be blank" });
-  // }
-  // console.log(req.files);
+  if (nginxConfig === undefined) {
+    return res.send({ message: "Nginx Config cannot be blank" });
+  }
+
+  if (files.length === 0) {
+    return res.send({ message: "website archive cannot be blank" });
+  }
+
   res.send({ message: "ok" });
 });
 

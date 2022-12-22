@@ -23,40 +23,29 @@ const AddWebsiteForm = () => {
   const addWebsiteHandler = async (e) => {
     e.preventDefault();
 
-    // if (website.length === 0) {
-    //   sendNotification(["Website cannot be blank", "danger"]);
-    // }if (!nginxConfig) {
-    //   sendNotification(["Nginx Config cannot be blank", "danger"]);
-    // } else {
-    //   try {
-    //     let body = {
-    //       website: website,
-    //       nginx_config: nginxConfig,
-    //     };
-    //
-    //     let res = await fetch("/api/websites/add", {
-    //       method: "POST",
-    //       headers: {
-    //         "content-type": "application/json; charset=utf-8",
-    //       },
-    //       body: JSON.stringify(body),
-    //     });
-    //     let resJson = await res.json();
-    //
-    //     sendNotification(`${resJson.message}`, "info");
-    //   } catch (err) {
-    //     sendNotification(`${err}`);
-    //   }
-    // }
+    if (website.length === 0) {
+      return sendNotification(["Website cannot be blank", "danger"]);
+    }
+    if (!nginxConfig) {
+      return sendNotification(["Nginx Config cannot be blank", "danger"]);
+    }
+
+    if (!websiteArchive) {
+      return sendNotification(["Website Archive cannot be blank", "danger"]);
+    }
 
     var formData = new FormData();
-    formData.append("userpic", websiteArchive.target.files[0]);
+    formData.append("website", website);
+    formData.append("nginx_config", nginxConfig);
+    formData.append("files", websiteArchive.target.files[0]);
 
-    await fetch("/api/websites/add", {
-      body: formData,
+    let res = await fetch("/api/websites/add", {
       method: "POST",
-      mode: "cors",
+      body: formData,
     });
+    let resJson = await res.json();
+
+    return sendNotification(`${resJson.message}`, "info");
   };
 
   return (
