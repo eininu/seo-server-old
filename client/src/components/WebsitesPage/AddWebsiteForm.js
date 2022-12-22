@@ -18,6 +18,8 @@ const AddWebsiteForm = () => {
 }`;
 
   const [nginxConfig, setNginxConfig] = useState(undefined);
+  const [websiteArchive, setWebsiteArchive] = useState();
+
   const addWebsiteHandler = async (e) => {
     e.preventDefault();
 
@@ -46,6 +48,15 @@ const AddWebsiteForm = () => {
     //     sendNotification(`${err}`);
     //   }
     // }
+
+    var formData = new FormData();
+    formData.append("userpic", websiteArchive.target.files[0]);
+
+    await fetch("/api/websites/add", {
+      body: formData,
+      method: "POST",
+      mode: "cors",
+    });
   };
 
   return (
@@ -120,7 +131,9 @@ const AddWebsiteForm = () => {
                   <input
                     className="form-control"
                     type="file"
-                    id="example-file-input"
+                    id="website_archive"
+                    name="website_archive"
+                    onInput={(e) => setWebsiteArchive(e)}
                   />
                 </div>
                 <div className="text-center">

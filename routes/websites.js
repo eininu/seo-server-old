@@ -1,6 +1,9 @@
 const express = require("express");
 const { dbRun, dbAll } = require("../database/database");
 const router = express.Router();
+const multer = require("multer");
+
+const upload = multer({ dest: process.cwd() + "/websites/uploads/" });
 
 const checkIfTableExists = async () => {
   let tableExistings = await dbAll(
@@ -40,7 +43,7 @@ router.get("/drop_table", async (req, res) => {
   return res.send({ message: "Good!" });
 });
 
-router.post("/add", (req, res) => {
+router.post("/add", upload.any(), (req, res) => {
   // const website = req.body.website;
   // const nginxConfig = req.body.nginx_config;
   // const archive = req.body.website_archive;
@@ -56,7 +59,7 @@ router.post("/add", (req, res) => {
   // if (archive === undefined) {
   //   return res.send({ message: "website archive cannot be blank" });
   // }
-
+  // console.log(req.files);
   res.send({ message: "ok" });
 });
 
