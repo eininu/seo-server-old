@@ -71,6 +71,11 @@ router.post("/add", upload.any(), (req, res) => {
     return res.send({ message: "website archive cannot be blank" });
   }
 
+  // fs.writeFileSync(
+  //   process.cwd() + "/nginx-configs/" + website + ".conf",
+  //   nginxConfig
+  // );
+
   if (files[0].mimetype !== "application/x-zip-compressed") {
     fs.unlinkSync(process.cwd() + "/websites/uploads/" + website);
 
