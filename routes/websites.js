@@ -94,16 +94,18 @@ router.post("/add", upload.any(), (req, res) => {
     nginxConfig
   );
 
-  if (files[0].mimetype !== "application/x-zip-compressed") {
-    fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
-
-    return res.send({ message: "It should be zip archive!" });
-  }
+  // if (files[0].mimetype !== "application/x-zip-compressed") {
+  //   fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
+  //
+  //   return res.send({ message: "It should be zip archive!" });
+  // }
 
   decompress(
     process.cwd() + "/websites/uploads/" + website + ".zip",
     process.cwd() + "/websites/" + website
   );
+
+  fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
   // .then((files) => {
   //   console.log(files);
   // })
