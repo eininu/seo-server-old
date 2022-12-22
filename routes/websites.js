@@ -3,6 +3,7 @@ const { dbRun, dbAll } = require("../database/database");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
+const decompress = require("decompress");
 
 // const upload = multer({ dest: process.cwd() + "/websites/uploads/" });
 
@@ -71,17 +72,28 @@ router.post("/add", upload.any(), (req, res) => {
     return res.send({ message: "website archive cannot be blank" });
   }
 
-  // fs.writeFileSync(
-  //   process.cwd() + "/nginx-configs/" + website + ".conf",
-  //   nginxConfig
-  // );
+  fs.writeFileSync(
+    process.cwd() + "/nginx-configs/" + website + ".conf",
+    nginxConfig
+  );
 
   if (files[0].mimetype !== "application/x-zip-compressed") {
     fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
 
     return res.send({ message: "It should be zip archive!" });
   }
-  console.log(files);
+
+  decompress(
+    process.cwd() + "/websites/uploads/" + website + ".zip",
+    process.cwd() + "/websites/" + website
+  );
+  // .then((files) => {
+  //   console.log(files);
+  // })
+  // .catch((error) => {
+  //   console.log(error);
+  // });
+  // console.log(files);
   res.send({ message: "ok" });
 });
 
