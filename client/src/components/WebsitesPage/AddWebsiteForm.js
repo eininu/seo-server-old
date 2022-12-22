@@ -34,11 +34,11 @@ const AddWebsiteForm = () => {
       return sendNotification(["Website Archive cannot be blank", "danger"]);
     }
 
-    if (
-      websiteArchive.target.files[0].type !== "application/x-zip-compressed"
-    ) {
-      return sendNotification(["Website File should be zip archive", "danger"]);
-    }
+    // if (
+    //   websiteArchive.target.files[0].type !== "application/x-zip-compressed"
+    // ) {
+    //   return sendNotification(["Website File should be zip archive", "danger"]);
+    // }
 
     var formData = new FormData();
     formData.append("website", website);
@@ -126,7 +126,8 @@ const AddWebsiteForm = () => {
                   <input
                     className="form-control"
                     type="file"
-                    accept="application/x-zip-compressed"
+                    // accept="application/x-zip-compressed"
+                    accept=".zip"
                     id="website_archive"
                     name="website_archive"
                     onChange={(e) => {
