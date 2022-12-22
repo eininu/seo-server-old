@@ -2,9 +2,20 @@ const express = require("express");
 const { dbRun, dbAll } = require("../database/database");
 const router = express.Router();
 const multer = require("multer");
+const fs = require("fs");
 
-const upload = multer({ dest: process.cwd() + "/websites/uploads/" });
+// const upload = multer({ dest: process.cwd() + "/websites/uploads/" });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, process.cwd() + "/websites/uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.website + ".zip");
+  },
+});
+
+const upload = multer({ storage: storage });
 const checkIfTableExists = async () => {
   let tableExistings = await dbAll(
     `SELECT name FROM sqlite_master WHERE type='table' AND name='websites';`
@@ -60,6 +71,12 @@ router.post("/add", upload.any(), (req, res) => {
     return res.send({ message: "website archive cannot be blank" });
   }
 
+  if (files[0].mimetype !== "application/x-zip-compressed") {
+    fs.unlinkSync(process.cwd() + "/websites/uploads/" + website);
+
+    return res.send({ message: "It should be zip archive!" });
+  }
+  console.log(files);
   res.send({ message: "ok" });
 });
 
