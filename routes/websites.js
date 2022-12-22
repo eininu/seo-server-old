@@ -77,12 +77,57 @@ router.post("/add", upload.any(), (req, res) => {
   // );
 
   if (files[0].mimetype !== "application/x-zip-compressed") {
-    fs.unlinkSync(process.cwd() + "/websites/uploads/" + website);
+    fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
 
     return res.send({ message: "It should be zip archive!" });
   }
   console.log(files);
   res.send({ message: "ok" });
+});
+
+router.get("/delete/:website", (req, res) => {
+  const website = req.params.website;
+
+  const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
+  const websiteArchivePath =
+    process.cwd() + "/websites/uploads/" + website + ".zip";
+  const websitePath = process.cwd() + "/websites/" + website;
+
+  try {
+    fs.unlink(nginxConfPath, (err) => {
+      if (err) {
+        console.log(`can't delete ==> ${nginxConfPath}`);
+      } else {
+        console.log(`deleted ==> ${nginxConfPath}`);
+      }
+    });
+    fs.unlink(websiteArchivePath, (err) => {
+      if (err) {
+        console.log(`can't delete ==> ${websiteArchivePath}`);
+      } else {
+        console.log(`deleted ==> ${websiteArchivePath}`);
+      }
+    });
+    fs.rm(
+      websitePath,
+      {
+        recursive: true,
+        force: true,
+      },
+      (err) => {
+        if (err) {
+          console.log(`can't delete ==> ${websitePath}`);
+        } else {
+          console.log(`deleted ==> ${websitePath}`);
+        }
+      }
+    );
+  } catch (err) {
+    console.log(err);
+    return res.send({ message: err });
+  }
+
+  res.send({ message: `Website ${website} successfully deleted` });
 });
 
 module.exports = router;
