@@ -1,6 +1,7 @@
 import { useState } from "react";
 import sendNotification from "../Notification";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import Modal from "../Modal";
 
 const AddWebsiteForm = (props) => {
   const [website, setWebsite] = useState("");
@@ -20,6 +21,68 @@ const AddWebsiteForm = (props) => {
 
   const [nginxConfig, setNginxConfig] = useState(undefined);
   const [websiteArchive, setWebsiteArchive] = useState();
+  const [itNeedsToRestartNginx, setTtNeedsToRestartNginx] = useState(false);
+
+  const AskSudoPassword = () => {
+    const [password, setPassword] = useState("");
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+
+      let body = {
+        password,
+      };
+      const res = await fetch("/api/shell/nginx/reload", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify(body),
+      });
+
+      const resJson = await res.json();
+
+      sendNotification([resJson.message, "danger"]);
+      setModal(false);
+    };
+
+    return (
+      <>
+        <p>
+          Input <b>sudo</b> user password
+        </p>
+        <form onSubmit={handleSubmit}>
+          <div className="row text-center">
+            <div className="col-sm-8">
+              <div className="block block-transparent">
+                <div className="block-content">
+                  <input
+                    className="form-control"
+                    type="text"
+                    value={password}
+                    placeholder="password"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-sm-4">
+              <div className="block block-transparent">
+                <div className="block-content">
+                  <button type="submit" className="btn btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </>
+    );
+  };
 
   const addWebsiteHandler = async (e) => {
     e.preventDefault();
@@ -52,7 +115,16 @@ const AddWebsiteForm = (props) => {
     });
     let resJson = await res.json();
     props.getWebsites();
+
+    itNeedsToRestartNginx ? setModal(true) : setModal(false);
+
     return sendNotification(`${resJson.message}`, "info");
+  };
+
+  const [modal, setModal] = useState();
+
+  const closeModal = () => {
+    setModal(false);
   };
 
   return (
@@ -131,6 +203,29 @@ const AddWebsiteForm = (props) => {
                     }}
                   />
                 </div>
+                <div className="mb-4">
+                  {/*<label className="form-label">Checkboxes</label>*/}
+                  <div className="space-y-2">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value={itNeedsToRestartNginx}
+                        id="restart_nginx"
+                        name="restart_nginx"
+                        onChange={() => {
+                          setTtNeedsToRestartNginx(!itNeedsToRestartNginx);
+                        }}
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor="example-checkbox-default1"
+                      >
+                        Restart NGINX
+                      </label>
+                    </div>
+                  </div>
+                </div>
                 <div className="text-center">
                   <button
                     type="submit"
@@ -144,6 +239,9 @@ const AddWebsiteForm = (props) => {
           </form>
         </div>
       </div>
+      {modal && (
+        <Modal closeModal={closeModal} modalText={<AskSudoPassword />} />
+      )}
     </div>
   );
 };
