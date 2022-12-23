@@ -22,7 +22,7 @@ router.post("/reload", (req, res) => {
   const password = req.body.password;
   // const command = shell.exec("whoami");
   const command = shell.exec(`echo ${password} | sudo -S nginx -s reload`);
-  res.send({ message: `${password}` });
+  res.send({ message: `If password was correct - nginx was reloaded` });
 });
 
 module.exports = router;

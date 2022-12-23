@@ -62,13 +62,17 @@ const Websites = (props) => {
       let body = {
         password,
       };
-      await fetch("/api/shell/nginx/reload", {
+      const res = await fetch("/api/shell/nginx/reload", {
         method: "POST",
         headers: {
           "content-type": "application/json; charset=utf-8",
         },
         body: JSON.stringify(body),
       });
+
+      const resJson = await res.json();
+
+      sendNotification([resJson.message, "danger"]);
     };
 
     return (
