@@ -1,5 +1,6 @@
 import { useState } from "react";
 import sendNotification from "../Notification";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 const AddWebsiteForm = (props) => {
   const [website, setWebsite] = useState("");
@@ -95,14 +96,9 @@ const AddWebsiteForm = (props) => {
                     Nginx Config
                   </label>{" "}
                   <small className="text-muted">
-                    <a
-                      onClick={() => {
-                        navigator.clipboard.writeText(nginxConfigExample);
-                        sendNotification("Copied");
-                      }}
-                    >
-                      copy placeholder
-                    </a>
+                    <CopyToClipboard text={`${nginxConfigExample}`}>
+                      <small>copy placeholder</small>
+                    </CopyToClipboard>
                   </small>
                   <textarea
                     className="form-control form-control-alt"
