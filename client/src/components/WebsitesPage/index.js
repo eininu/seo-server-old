@@ -9,7 +9,6 @@ const WebsitesPage = () => {
     let res = await fetch("/api/websites/list");
     let resJson = await res.json();
     setWebsites(resJson);
-    console.log("hi");
   };
 
   useEffect(() => {
