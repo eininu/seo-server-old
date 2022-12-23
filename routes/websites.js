@@ -105,7 +105,7 @@ router.post("/add", upload.any(), (req, res) => {
     process.cwd() + "/websites/" + website
   );
 
-  fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
+  // fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
   // .then((files) => {
   //   console.log(files);
   // })
