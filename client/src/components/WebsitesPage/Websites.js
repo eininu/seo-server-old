@@ -1,7 +1,7 @@
 import sendNotification from "../Notification";
 import { useEffect, useState } from "react";
 
-const Websites = () => {
+const Websites = (props) => {
   const [appState, setAppState] = useState(undefined);
 
   useEffect(() => {
@@ -45,17 +45,6 @@ const Websites = () => {
       sendNotification(resJson.message);
     }
   };
-  const [settings, setSettings] = useState([]);
-
-  const getSettings = async () => {
-    let res = await fetch("/api/websites/list");
-    let resJson = await res.json();
-    setSettings(resJson);
-  };
-
-  useEffect(() => {
-    getSettings();
-  }, []);
 
   return (
     <div className="content">
@@ -96,7 +85,7 @@ const Websites = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {settings.map((param, index) => {
+                      {props.websites.map((param, index) => {
                         return (
                           <tr key={index}>
                             <td>{param.website}</td>
@@ -112,7 +101,7 @@ const Websites = () => {
                                         sendNotification(
                                           `Website ${param.website} deleted successfully`
                                         );
-                                        getSettings();
+                                        props.getWebsites();
                                       }
                                     });
                                   }}
@@ -124,10 +113,10 @@ const Websites = () => {
                                     aria-label="Remove Client"
                                     data-bs-original-title="Remove Client"
                                     name={param.key}
-                                    onClick={(e) => {
-                                      // deleteSettingHandler();
-                                      console.log(param.key);
-                                    }}
+                                    // onClick={(e) => {
+                                    //   // deleteSettingHandler();
+                                    //   console.log(param.key);
+                                    // }}
                                   >
                                     <i className="fa fa-fw fa-times"></i>
                                   </button>

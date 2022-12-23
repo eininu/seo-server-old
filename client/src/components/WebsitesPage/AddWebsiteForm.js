@@ -1,7 +1,7 @@
 import { useState } from "react";
 import sendNotification from "../Notification";
 
-const AddWebsiteForm = () => {
+const AddWebsiteForm = (props) => {
   const [website, setWebsite] = useState("");
 
   let nginxConfigExample = `server {
@@ -50,7 +50,7 @@ const AddWebsiteForm = () => {
       body: formData,
     });
     let resJson = await res.json();
-
+    props.getWebsites();
     return sendNotification(`${resJson.message}`, "info");
   };
 
