@@ -73,6 +73,7 @@ const Websites = (props) => {
       const resJson = await res.json();
 
       sendNotification([resJson.message, "danger"]);
+      setModal(false);
     };
 
     return (
