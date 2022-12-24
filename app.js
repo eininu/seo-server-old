@@ -14,6 +14,8 @@ const authRouter = require("./routes/auth");
 const settingsRouter = require("./routes/settings");
 const websitesRouter = require("./routes/websites");
 const shellRouter = require("./routes/shell");
+const syncRouter = require("./routes/sync");
+const serversRouter = require("./routes/servers");
 
 var app = express();
 
@@ -34,6 +36,8 @@ app.use(isInstalled, (req, res, next) => {
   next();
 });
 
+app.use("/api/sync", syncRouter);
+
 app.use("/api/auth", authRouter);
 
 app.use(isAuth, (req, res, next) => {
@@ -44,6 +48,7 @@ app.use("/api", indexRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/websites", websitesRouter);
 app.use("/api/shell", shellRouter);
+app.use("/api/servers", serversRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
