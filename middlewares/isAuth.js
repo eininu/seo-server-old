@@ -21,7 +21,9 @@ isAuth = async (req, res, next) => {
       if (serversArray.includes(requesterIp)) {
         next();
       } else {
-        return res.status(403).send({ message: "Wrong ip request!" });
+        return res
+          .status(403)
+          .send({ message: `Wrong ip request with ${requesterIp}!` });
       }
     } else {
       return res.send({ message: "No servers" });

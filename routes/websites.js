@@ -167,7 +167,7 @@ router.get("/delete/:website", async (req, res) => {
   const result = await Promise.all(
     serversArray.map(async (server) => {
       console.log(
-        "it would be fetch for this ulr " +
+        "trying to fetch this url:  " +
           `http://${server}/api/websites/delete/${website}`
       );
       let request = await fetch(
