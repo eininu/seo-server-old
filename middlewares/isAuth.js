@@ -1,21 +1,13 @@
 const jwt = require("jsonwebtoken");
 const { dbAll } = require("../database/database");
-
-const getRequesterIp = async () => {
-  let res = await fetch("https://myipv4.p1.opendns.com/get_my_ip");
-  const resJson = await res.json();
-  return `${resJson.ip}`;
-};
+const { getServers } = require("../modules/getServers");
+const { getRequesterIp } = require("../modules/getRequesterIp");
 
 let requesterIp;
 
 isAuth = async (req, res, next) => {
   // check if it's local request
   if (req.headers.islocalrequest === "yes") {
-    const getServers = async () => {
-      return await dbAll(`SELECT server_ip FROM servers`);
-    };
-
     const servers = await getServers();
     if (servers.length > 0) {
       const serversArray = Object.values(servers).map((el) => el.server_ip);
