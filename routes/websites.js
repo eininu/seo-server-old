@@ -4,6 +4,7 @@ const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
 const decompress = require("decompress");
+const { getServers } = require("../modules/getServers");
 
 if (!fs.existsSync(process.cwd() + "/websites/uploads/")) {
   fs.mkdirSync(process.cwd() + "/websites/");
@@ -116,7 +117,7 @@ router.post("/add", upload.any(), (req, res) => {
   res.send({ message: "ok" });
 });
 
-router.get("/delete/:website", (req, res) => {
+router.get("/delete/:website", async (req, res) => {
   const website = req.params.website;
 
   const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
@@ -158,7 +159,38 @@ router.get("/delete/:website", (req, res) => {
     return res.send({ message: err });
   }
 
-  res.send({ message: `Website ${website} successfully deleted` });
+  // run task on another servers if we have them on database
+  const servers = await getServers();
+  const serversArray = Object.values(servers).map((el) => el.server_ip);
+  console.log(servers);
+
+  const result = await Promise.all(
+    serversArray.map(async (server) => {
+      console.log(
+        "it would be fetch for this ulr " +
+          `http://${server}/api/websites/delete/${website}`
+      );
+      let request = await fetch(
+        `http://${server}/api/websites/delete/${website}`,
+        {
+          headers: {
+            islocalrequest: "yes",
+          },
+          body: null,
+          method: "GET",
+        }
+      );
+
+      const requestJson = await request.json();
+
+      return `${server}: ${requestJson.message}`;
+    })
+  );
+
+  res.send({
+    message: `Website ${website} successfully deleted`,
+    servers_log: result,
+  });
 });
 
 module.exports = router;

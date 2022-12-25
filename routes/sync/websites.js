@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const { getServers } = require("../../modules/getServers");
 
 // verify connection between webservers
 // if websites connected - check connection between
@@ -27,35 +26,6 @@ router.post("/all", (req, res) => {
 // add website to all remote servers
 router.post("/add", (req, res) => {
   res.send({ message: "add website" });
-});
-
-// delete website from all remote servers
-router.get("/delete/:website", async (req, res) => {
-  const servers = await getServers();
-  const serversArray = Object.values(servers).map((el) => el.server_ip);
-  console.log(servers);
-  const website = req.params.website;
-
-  const result = await Promise.all(
-    serversArray.map(async (server) => {
-      let request = await fetch(
-        `http://${server}/api/websites/delete/${website}`,
-        {
-          headers: {
-            islocalrequest: "yes",
-          },
-          body: null,
-          method: "GET",
-        }
-      );
-
-      const requestJson = await request.json();
-
-      return `${server}: ${requestJson.message}`;
-    })
-  );
-
-  res.send(result);
 });
 
 module.exports = router;
