@@ -89,14 +89,11 @@ server {
   where instead 0.0.0.0 use your server ip address
 
 - by command `sudo nano /etc/nginx/nginx.conf` change param `user` to your username (for me its `ein`)
-- change `user nginx` to `user ein` # instead ein your username
-  - `/home/ein/jp9.org/client/build/`
-- in server param change root param to your build client file.
 - `sudo nginx -t` # to check if config have some troubles
 - `sudo systemctl restart nginx` # reboot nginx
 
 - Congratulations! Your app is work just by http://server_ip and app api works here http://server_ip/api # of course here instead `server_ip` should be your server ip address
 
 ## 2. Usage
-For using `websites` - add following line to your nginx config for read configs from your app (at the end of http param).
+For using `websites` - add following line to your nginx.conf config for read configs from your app (at the end of http param, virtual hosts config).
 - `include /home/ein/jp9.org/nginx-configs/*.conf;`
