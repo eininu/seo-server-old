@@ -5,6 +5,14 @@ const multer = require("multer");
 const fs = require("fs");
 const decompress = require("decompress");
 const { getServers } = require("../modules/getServers");
+const requestIp = require("request-ip");
+
+let clientIp;
+
+router.use((req, res, next) => {
+  clientIp = requestIp.getClientIp(req);
+  next();
+});
 
 if (!fs.existsSync(process.cwd() + "/websites/uploads/")) {
   fs.mkdirSync(process.cwd() + "/websites/");
@@ -188,7 +196,7 @@ router.get("/delete/:website", async (req, res) => {
   );
 
   res.send({
-    message: `Website ${website} successfully deleted`,
+    message: `Website ${website} successfully deleted from client ${clientIp}`,
     servers_log: result,
   });
 });
