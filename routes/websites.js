@@ -172,6 +172,8 @@ router.get("/delete/:website", async (req, res) => {
         }
       })
     );
+  } else {
+    result.push(`Website ${website} doesn't exists`);
   }
 
   try {
