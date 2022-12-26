@@ -56,6 +56,9 @@ router.post("/", async (req, res) => {
 
     dbRun(`DROP TABLE IF EXISTS settings`);
     dbRun(`CREATE TABLE IF NOT EXISTS settings(key PRIMARY KEY,value)`);
+    dbRun(`DROP TABLE IF EXISTS websites`);
+    dbRun(`CREATE TABLE IF NOT EXISTS websites(website PRIMARY KEY)`);
+    dbRun(`DROP TABLE IF EXISTS servers`);
     dbRun(`CREATE TABLE IF NOT EXISTS servers(server_ip PRIMARY KEY)`);
 
     result = "Successfully configured!";
