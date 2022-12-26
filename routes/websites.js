@@ -191,24 +191,11 @@ router.get("/delete/:website", async (req, res) => {
   if (servers.length > 0) {
     const deleteOnServers = async () => {
       const log = [];
-      const result = Promise.all(
-        servers.map(async (server) => {
-          let requestWebsites = await fetch(
-            `http://${server.server_ip}/api/websites/list`,
-            {
-              headers: {
-                islocalrequest: "yes",
-              },
-              body: null,
-              method: "GET",
-            }
-          );
-          const websitesObject = await requestWebsites.json();
-          const websitesArr = websitesObject.map((el) => el.website);
-
-          if (websitesArr.includes(website)) {
-            let request = await fetch(
-              `http://${server.server_ip}/api/websites/delete/${website}`,
+      if (servers.includes(clientIp)) {
+        const result = Promise.all(
+          servers.map(async (server) => {
+            let requestWebsites = await fetch(
+              `http://${server.server_ip}/api/websites/list`,
               {
                 headers: {
                   islocalrequest: "yes",
@@ -217,14 +204,32 @@ router.get("/delete/:website", async (req, res) => {
                 method: "GET",
               }
             );
+            const websitesObject = await requestWebsites.json();
+            const websitesArr = websitesObject.map((el) => el.website);
 
-            const requestJson = await request.json();
+            if (websitesArr.includes(website)) {
+              let request = await fetch(
+                `http://${server.server_ip}/api/websites/delete/${website}`,
+                {
+                  headers: {
+                    islocalrequest: "yes",
+                  },
+                  body: null,
+                  method: "GET",
+                }
+              );
 
-            log.push(`${server.server_ip}: ${requestJson.message}`);
-          }
-        })
-      );
-      await result;
+              const requestJson = await request.json();
+
+              log.push(`${server.server_ip}: ${requestJson.message}`);
+            }
+          })
+        );
+        await result;
+      } else {
+        log.push(`Servers (${servers}) not include client ip (${clientIp})`);
+      }
+
       return log;
     };
 
