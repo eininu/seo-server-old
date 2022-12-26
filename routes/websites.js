@@ -6,7 +6,6 @@ const fs = require("fs");
 const decompress = require("decompress");
 const { getServers } = require("../modules/getServers");
 const requestIp = require("request-ip");
-const { getServerIp } = require("../modules/getServerIp");
 
 let clientIp;
 
@@ -134,6 +133,48 @@ router.get("/delete/:website", async (req, res) => {
     process.cwd() + "/websites/uploads/" + website + ".zip";
   const websitePath = process.cwd() + "/websites/" + website;
 
+  // run task on another servers if we have them on database
+  const servers = await getServers();
+  let result = [];
+
+  const websites = [];
+
+  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
+    websites.push({ website: el.split(".conf")[0] });
+  });
+
+  if (websites.includes(website)) {
+    const serversArray = Object.values(servers).map((el) => el.server_ip);
+    console.log(servers);
+
+    result = await Promise.all(
+      serversArray.map(async (server) => {
+        // console.log(
+        //   "trying to fetch this url:  " +
+        //     `http://${server}/api/websites/delete/${website}`
+        // );
+        try {
+          let request = await fetch(
+            `http://${server}/api/websites/delete/${website}`,
+            {
+              headers: {
+                islocalrequest: "yes",
+              },
+              body: null,
+              method: "GET",
+            }
+          );
+
+          const requestJson = await request.json();
+
+          return `${server}: ${requestJson.message}`;
+        } catch (e) {
+          return e;
+        }
+      })
+    );
+  }
+
   try {
     fs.unlink(nginxConfPath, (err) => {
       if (err) {
@@ -166,50 +207,6 @@ router.get("/delete/:website", async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.send({ message: err });
-  }
-
-  // run task on another servers if we have them on database
-  const servers = await getServers();
-  let result = [];
-
-  const websites = [];
-
-  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-    websites.push({ website: el.split(".conf")[0] });
-  });
-
-  if (websites.includes(website)) {
-    const serverIp = await getServerIp();
-
-    const serversArray = Object.values(servers).map((el) => el.server_ip);
-    console.log(servers);
-
-    result = await Promise.all(
-      serversArray.map(async (server) => {
-        // console.log(
-        //   "trying to fetch this url:  " +
-        //     `http://${server}/api/websites/delete/${website}`
-        // );
-        try {
-          let request = await fetch(
-            `http://${server}/api/websites/delete/${website}`,
-            {
-              headers: {
-                islocalrequest: "yes",
-              },
-              body: null,
-              method: "GET",
-            }
-          );
-
-          const requestJson = await request.json();
-
-          return `${server}: ${requestJson.message}`;
-        } catch (e) {
-          return e;
-        }
-      })
-    );
   }
 
   res.send({
