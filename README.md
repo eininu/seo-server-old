@@ -67,7 +67,6 @@ So, now you can exactly check your api connection by server_ip:3001. It should w
 
 #### Configure custom ports
 - `sudo nano /etc/nginx/conf.d/jp9.conf`
-- in server param change root param to your build client file.
 ```
 server {
         server_name 0.0.0.0;
