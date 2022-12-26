@@ -216,7 +216,7 @@ router.get("/delete/:website", async (req, res) => {
 
             const requestJson = await request.json();
 
-            log.push(`${server}: ${requestJson.message}`);
+            log.push(`${server.server_ip}: ${requestJson.message}`);
           }
         })
       );
