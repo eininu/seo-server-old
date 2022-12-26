@@ -140,12 +140,8 @@ router.get("/delete/:website", async (req, res) => {
   const websites = [];
 
   fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-    websites.push({ website: el.split(".conf")[0] });
+    websites.push(el.split(".conf")[0]);
   });
-
-  console.log("websites " + websites);
-  console.log("website " + website);
-  console.log("include " + websites.includes(website));
 
   if (websites.includes(website)) {
     const serversArray = Object.values(servers).map((el) => el.server_ip);
