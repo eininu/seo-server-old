@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { dbAll } = require("../database/database");
 const { getServers } = require("../modules/getServers");
-const { getRequesterIp } = require("../modules/getRequesterIp");
+// const { getRequesterIp } = require("../modules/getRequesterIp");
 
 let requesterIp;
 
@@ -12,9 +12,11 @@ isAuth = async (req, res, next) => {
     if (servers.length > 0) {
       const serversArray = Object.values(servers).map((el) => el.server_ip);
       if (process.env.NODE_ENV === "development") {
+        console.log(req.ip);
         requesterIp = "localhost";
       } else {
-        requesterIp = requesterIp ?? (await getRequesterIp());
+        // requesterIp = requesterIp ?? (await getRequesterIp());
+        requesterIp = requesterIp ?? req.ip;
       }
 
       // console.log(requesterIp);
