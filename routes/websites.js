@@ -143,16 +143,15 @@ router.get("/delete/:website", async (req, res) => {
     websites.push(el.split(".conf")[0]);
   });
 
+  console.log(website);
+  console.log(websites);
+  console.log(websites.includes(website));
   if (websites.includes(website)) {
     const serversArray = Object.values(servers).map((el) => el.server_ip);
     console.log(servers);
 
     result = await Promise.all(
       serversArray.map(async (server) => {
-        // console.log(
-        //   "trying to fetch this url:  " +
-        //     `http://${server}/api/websites/delete/${website}`
-        // );
         try {
           let request = await fetch(
             `http://${server}/api/websites/delete/${website}`,
