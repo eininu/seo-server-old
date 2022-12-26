@@ -11,6 +11,7 @@ import LogoutPage from "./components/LogoutPage";
 import SettingsPage from "./components/SettingsPage";
 import WebsitesPage from "./components/WebsitesPage";
 import Loader from "./components/Loader";
+import ServersPage from "./components/ServersPage";
 
 function App() {
   const name = "JP9";
@@ -77,6 +78,7 @@ function App() {
               <Route path="/" element={<IndexPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/websites" element={<WebsitesPage />} />
+              <Route path="/servers" element={<ServersPage />} />
               <Route path="/logout" element={<LogoutPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
