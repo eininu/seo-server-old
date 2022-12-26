@@ -143,6 +143,10 @@ router.get("/delete/:website", async (req, res) => {
     websites.push({ website: el.split(".conf")[0] });
   });
 
+  console.log("websites " + websites);
+  console.log("website " + website);
+  console.log("include " + websites.includes(website));
+
   if (websites.includes(website)) {
     const serversArray = Object.values(servers).map((el) => el.server_ip);
     console.log(servers);
