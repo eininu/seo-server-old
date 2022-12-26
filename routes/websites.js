@@ -148,7 +148,7 @@ router.get("/delete/:website", async (req, res) => {
   console.log(websites.includes(website));
   if (websites.includes(website)) {
     const serversArray = Object.values(servers).map((el) => el.server_ip);
-    console.log(servers);
+    // console.log(servers);
 
     result = await Promise.all(
       serversArray.map(async (server) => {
