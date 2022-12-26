@@ -190,6 +190,7 @@ router.get("/delete/:website", async (req, res) => {
   res.send({
     message: `Website ${website} successfully deleted`,
     servers_log: result,
+    servers: servers,
   });
 });
 
