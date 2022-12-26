@@ -128,6 +128,7 @@ router.post("/add", upload.any(), (req, res) => {
 router.get("/delete/:website", async (req, res) => {
   const website = req.params.website;
 
+  // delete single website
   const deleteWebsite = async () => {
     const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
     const websiteArchivePath =
@@ -176,6 +177,7 @@ router.get("/delete/:website", async (req, res) => {
 
     return website + " deleted successfully";
   };
+
   const websites = fs
     .readdirSync(process.cwd() + "/nginx-configs/")
     .map((el) => {
@@ -183,7 +185,9 @@ router.get("/delete/:website", async (req, res) => {
     });
   //
 
+  // run task on another servers if we have them on database
   const servers = await getServers();
+
   if (servers.length > 0) {
     const deleteOnServers = async () => {
       const log = [];
@@ -224,8 +228,6 @@ router.get("/delete/:website", async (req, res) => {
       return log;
     };
 
-    // const deleteOnServers = async () => {};
-
     if (websites.includes(website)) {
       const result = await deleteWebsite();
       const log = await deleteOnServers();
@@ -234,48 +236,6 @@ router.get("/delete/:website", async (req, res) => {
       res.send({ message: `${website} doesn't exists` });
     }
   }
-
-  // run task on another servers if we have them on database
-  // const servers = await getServers();
-  //
-  // let result = [];
-  //
-  // const websites = fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-  //   websites.push(el.split(".conf")[0]);
-  // });
-  //
-  // console.log(website);
-  // console.log(websites);
-  // console.log(websites.includes(website));
-  // if (websites.includes(website)) {
-  //   const serversArray = Object.values(servers).map((el) => el.server_ip);
-  //   // console.log(servers);
-  //
-  //   result = await Promise.all(
-  //     serversArray.map(async (server) => {
-  //       try {
-  //         let request = await fetch(
-  //           `http://${server}/api/websites/delete/${website}`,
-  //           {
-  //             headers: {
-  //               islocalrequest: "yes",
-  //             },
-  //             body: null,
-  //             method: "GET",
-  //           }
-  //         );
-  //
-  //         const requestJson = await request.json();
-  //
-  //         return `${server}: ${requestJson.message}`;
-  //       } catch (e) {
-  //         return e;
-  //       }
-  //     })
-  //   );
-  // } else {
-  //   result.push(`Website ${website} doesn't exists`);
-  // }
 });
 
 module.exports = router;
