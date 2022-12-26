@@ -1,25 +1,16 @@
 var express = require("express");
-const { dbAll, dbRun } = require("../database/database");
+const { dbRun, dbAll } = require("../database/database");
 const router = express.Router();
 
-const checkIfTableExists = async () => {
-  let tableExistings = await dbAll(
-    `SELECT name FROM sqlite_master WHERE type='table' AND name='servers';`
+router.get("/", async (req, res) => {
+  const servers = await dbAll(
+    `SELECT t.*
+     FROM servers t
+     LIMIT 501;`
   );
-
-  return tableExistings.length;
-};
-
-router.use(async (req, res, next) => {
-  let tableExistings = await checkIfTableExists();
-
-  if (tableExistings === 0) {
-    // dbRun(`DROP TABLE IF EXISTS`);
-    await dbRun(`CREATE TABLE IF NOT EXISTS servers(server_ip PRIMARY KEY)`);
-  }
-  next();
+  const serversArr = servers.map((el) => el.server_ip);
+  res.send(serversArr);
 });
-
 router.post("/", (req, res) => {
   const serverIp = req.body.server_ip;
   dbRun(`INSERT INTO servers(server_ip) VALUES (?)`, [serverIp]);
