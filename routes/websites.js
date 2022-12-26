@@ -119,6 +119,9 @@ router.post("/add", upload.any(), (req, res) => {
 
 router.get("/delete/:website", async (req, res) => {
   const website = req.params.website;
+  let test1 = req.headers["x-forwarded-for"];
+  let test2 = req.socket.remoteAddress;
+  let test3 = req.ip;
 
   const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
   const websiteArchivePath =
@@ -189,6 +192,9 @@ router.get("/delete/:website", async (req, res) => {
 
   res.send({
     message: `Website ${website} successfully deleted`,
+    test1,
+    test2,
+    test3,
     servers_log: result,
     servers: servers,
   });
