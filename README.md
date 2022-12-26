@@ -89,6 +89,9 @@ server {
   where instead 0.0.0.0 use your server ip address
 
 - by command `sudo nano /etc/nginx/nginx.conf` change param `user` to your username (for me its `ein`)
+- change `user nginx` to `user ein` # instead ein your username
+  - `/home/ein/jp9.org/client/build/`
+- in server param change root param to your build client file.
 - `sudo nginx -t` # to check if config have some troubles
 - `sudo systemctl restart nginx` # reboot nginx
 
