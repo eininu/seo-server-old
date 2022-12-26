@@ -86,7 +86,7 @@ server {
         listen [::]:80;
 }
 ```
-  where instead 0.0.0.0 use your server ip address
+  !!! where instead 0.0.0.0 use your server ip address
 
 - by command `sudo nano /etc/nginx/nginx.conf` change param `user` to your username (for me its `ein`)
 - `sudo nginx -t` # to check if config have some troubles
