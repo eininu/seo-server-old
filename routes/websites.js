@@ -178,24 +178,27 @@ router.get("/delete/:website", async (req, res) => {
         "trying to fetch this url:  " +
           `http://${server}/api/websites/delete/${website}`
       );
-      let request = await fetch(
-        `http://${server}/api/websites/delete/${website}`,
-        {
-          headers: {
-            islocalrequest: "yes",
-          },
-          body: null,
-          method: "GET",
-        }
-      );
+      try {
+        let request = await fetch(
+          `http://${server}/api/websites/delete/${website}`,
+          {
+            headers: {
+              islocalrequest: "yes",
+            },
+            body: null,
+            method: "GET",
+          }
+        );
 
-      const requestJson = await request.json();
+        const requestJson = await request.json();
 
-      return `${server}: ${requestJson.message}`;
+        return `${server}: ${requestJson.message}`;
+      } catch (e) {
+        return e;
+      }
     })
   );
 
-  console.log(req);
   res.send({
     message: `Website ${website} successfully deleted from client ${clientIp}`,
     servers_log: result,
