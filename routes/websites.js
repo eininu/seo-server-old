@@ -128,33 +128,69 @@ router.post("/add", upload.any(), (req, res) => {
 router.get("/delete/:website", async (req, res) => {
   const website = req.params.website;
 
-  const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
-  const websiteArchivePath =
-    process.cwd() + "/websites/uploads/" + website + ".zip";
-  const websitePath = process.cwd() + "/websites/" + website;
+  const deleteWebsite = async () => {
+    const nginxConfPath = process.cwd() + "/nginx-configs/" + website + ".conf";
+    const websiteArchivePath =
+      process.cwd() + "/websites/uploads/" + website + ".zip";
+    const websitePath = process.cwd() + "/websites/" + website;
 
-  // run task on another servers if we have them on database
+    // const log = [];
+
+    await fs.unlink(nginxConfPath, (err) => {
+      if (err) {
+        return nginxConfPath + " doesn't exists";
+      } else {
+        // log.push(`deleted ==> ${nginxConfPath}`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`deleted ==> ${nginxConfPath}`);
+        }
+      }
+    });
+    await fs.unlink(websiteArchivePath, (err) => {
+      if (err) {
+        return websiteArchivePath + " doesn't exists";
+      } else {
+        // log.push(`deleted ==> ${websiteArchivePath}`);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`deleted ==> ${websiteArchivePath}`);
+        }
+      }
+    });
+    await fs.rm(
+      websitePath,
+      {
+        recursive: true,
+        force: true,
+      },
+      (err) => {
+        if (err) {
+          return websitePath + " doesn't exists";
+        } else {
+          // log.push(`deleted ==> ${websitePath}`);
+          if (process.env.NODE_ENV === "development") {
+            console.log(`deleted ==> ${websitePath}`);
+          }
+        }
+      }
+    );
+
+    return website + " deleted successfully";
+  };
+  const websites = fs
+    .readdirSync(process.cwd() + "/nginx-configs/")
+    .map((el) => {
+      return el.split(".conf")[0];
+    });
+  //
+
   const servers = await getServers();
-  let result = [];
-
-  const websites = [];
-
-  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-    websites.push(el.split(".conf")[0]);
-  });
-
-  console.log(website);
-  console.log(websites);
-  console.log(websites.includes(website));
-  if (websites.includes(website)) {
-    const serversArray = Object.values(servers).map((el) => el.server_ip);
-    // console.log(servers);
-
-    result = await Promise.all(
-      serversArray.map(async (server) => {
-        try {
-          let request = await fetch(
-            `http://${server}/api/websites/delete/${website}`,
+  if (servers.length > 0) {
+    const deleteOnServers = async () => {
+      const log = [];
+      const result = Promise.all(
+        servers.map(async (server) => {
+          let requestWebsites = await fetch(
+            `http://${server.server_ip}/api/websites/list`,
             {
               headers: {
                 islocalrequest: "yes",
@@ -163,57 +199,83 @@ router.get("/delete/:website", async (req, res) => {
               method: "GET",
             }
           );
+          const websitesObject = await requestWebsites.json();
+          const websitesArr = websitesObject.map((el) => el.website);
 
-          const requestJson = await request.json();
+          if (websitesArr.includes(website)) {
+            let request = await fetch(
+              `http://${server.server_ip}/api/websites/delete/${website}`,
+              {
+                headers: {
+                  islocalrequest: "yes",
+                },
+                body: null,
+                method: "GET",
+              }
+            );
 
-          return `${server}: ${requestJson.message}`;
-        } catch (e) {
-          return e;
-        }
-      })
-    );
-  } else {
-    result.push(`Website ${website} doesn't exists`);
+            const requestJson = await request.json();
+
+            log.push(`${server}: ${requestJson.message}`);
+          }
+        })
+      );
+      await result;
+      return log;
+    };
+
+    // const deleteOnServers = async () => {};
+
+    if (websites.includes(website)) {
+      const result = await deleteWebsite();
+      const log = await deleteOnServers();
+      res.send({ message: result, log });
+    } else {
+      res.send({ message: `${website} doesn't exists` });
+    }
   }
 
-  try {
-    fs.unlink(nginxConfPath, (err) => {
-      if (err) {
-        console.log(`can't delete ==> ${nginxConfPath}`);
-      } else {
-        console.log(`deleted ==> ${nginxConfPath}`);
-      }
-    });
-    fs.unlink(websiteArchivePath, (err) => {
-      if (err) {
-        console.log(`can't delete ==> ${websiteArchivePath}`);
-      } else {
-        console.log(`deleted ==> ${websiteArchivePath}`);
-      }
-    });
-    fs.rm(
-      websitePath,
-      {
-        recursive: true,
-        force: true,
-      },
-      (err) => {
-        if (err) {
-          console.log(`can't delete ==> ${websitePath}`);
-        } else {
-          console.log(`deleted ==> ${websitePath}`);
-        }
-      }
-    );
-  } catch (err) {
-    console.log(err);
-    return res.send({ message: err });
-  }
-
-  res.send({
-    message: `Website ${website} successfully deleted from client ${clientIp}`,
-    servers_log: result,
-  });
+  // run task on another servers if we have them on database
+  // const servers = await getServers();
+  //
+  // let result = [];
+  //
+  // const websites = fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
+  //   websites.push(el.split(".conf")[0]);
+  // });
+  //
+  // console.log(website);
+  // console.log(websites);
+  // console.log(websites.includes(website));
+  // if (websites.includes(website)) {
+  //   const serversArray = Object.values(servers).map((el) => el.server_ip);
+  //   // console.log(servers);
+  //
+  //   result = await Promise.all(
+  //     serversArray.map(async (server) => {
+  //       try {
+  //         let request = await fetch(
+  //           `http://${server}/api/websites/delete/${website}`,
+  //           {
+  //             headers: {
+  //               islocalrequest: "yes",
+  //             },
+  //             body: null,
+  //             method: "GET",
+  //           }
+  //         );
+  //
+  //         const requestJson = await request.json();
+  //
+  //         return `${server}: ${requestJson.message}`;
+  //       } catch (e) {
+  //         return e;
+  //       }
+  //     })
+  //   );
+  // } else {
+  //   result.push(`Website ${website} doesn't exists`);
+  // }
 });
 
 module.exports = router;
