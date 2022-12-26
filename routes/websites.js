@@ -172,44 +172,44 @@ router.get("/delete/:website", async (req, res) => {
   const servers = await getServers();
   let result = [];
 
-  if (servers.length > 0) {
+  const websites = [];
+
+  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
+    websites.push({ website: el.split(".conf")[0] });
+  });
+
+  if (websites.includes(website)) {
     const serverIp = await getServerIp();
-    console.log("!!! server ip " + serverIp);
-    console.log("!!! client ip " + clientIp);
-    // compare ip's for skip self server requests
-    if (serverIp !== clientIp) {
-      const serversArray = Object.values(servers).map((el) => el.server_ip);
-      console.log(servers);
 
-      result = await Promise.all(
-        serversArray.map(async (server) => {
-          console.log(
-            "trying to fetch this url:  " +
-              `http://${server}/api/websites/delete/${website}`
+    const serversArray = Object.values(servers).map((el) => el.server_ip);
+    console.log(servers);
+
+    result = await Promise.all(
+      serversArray.map(async (server) => {
+        // console.log(
+        //   "trying to fetch this url:  " +
+        //     `http://${server}/api/websites/delete/${website}`
+        // );
+        try {
+          let request = await fetch(
+            `http://${server}/api/websites/delete/${website}`,
+            {
+              headers: {
+                islocalrequest: "yes",
+              },
+              body: null,
+              method: "GET",
+            }
           );
-          try {
-            let request = await fetch(
-              `http://${server}/api/websites/delete/${website}`,
-              {
-                headers: {
-                  islocalrequest: "yes",
-                },
-                body: null,
-                method: "GET",
-              }
-            );
 
-            const requestJson = await request.json();
+          const requestJson = await request.json();
 
-            return `${server}: ${requestJson.message}`;
-          } catch (e) {
-            return e;
-          }
-        })
-      );
-    } else {
-      result.push(`${serverIp} === ${clientIp} (skip)`);
-    }
+          return `${server}: ${requestJson.message}`;
+        } catch (e) {
+          return e;
+        }
+      })
+    );
   }
 
   res.send({
