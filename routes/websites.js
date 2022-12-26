@@ -174,7 +174,8 @@ router.get("/delete/:website", async (req, res) => {
 
   if (servers.length > 0) {
     const serverIp = await getServerIp();
-
+    console.log("!!! server ip " + serverIp);
+    console.log("!!! client ip " + clientIp);
     // compare ip's for skip self server requests
     if (serverIp !== clientIp) {
       const serversArray = Object.values(servers).map((el) => el.server_ip);
@@ -210,7 +211,7 @@ router.get("/delete/:website", async (req, res) => {
       result.push(`${serverIp} === ${clientIp} (skip)`);
     }
   }
-  console.log(`server ip: ${serverIp}, client ip ${clientIp}`);
+
   res.send({
     message: `Website ${website} successfully deleted from client ${clientIp}`,
     servers_log: result,
