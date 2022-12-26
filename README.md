@@ -73,7 +73,7 @@ So, now you can exactly check your api connection by server_ip:3001. It should w
 ```
 server {
         server_name 0.0.0.0;
-        
+        proxy_set_header X-Forwarded-For $remote_addr;
         location / {
                 root /home/ein/jp9.org/client/build;
                 index index.html;
