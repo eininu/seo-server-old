@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
   const websites = [];
 
   fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-    websites.push({ website: el.split(".conf")[0] });
+    websites.push(el.split(".conf")[0]);
   });
   res.json(websites);
 });

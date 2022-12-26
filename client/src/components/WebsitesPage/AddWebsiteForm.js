@@ -109,7 +109,7 @@ const AddWebsiteForm = (props) => {
     formData.append("nginx_config", nginxConfig);
     formData.append("files", websiteArchive.target.files[0]);
 
-    let res = await fetch("/api/websites/add", {
+    let res = await fetch("/api/websites/", {
       method: "POST",
       body: formData,
     });

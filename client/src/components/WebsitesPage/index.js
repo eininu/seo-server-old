@@ -6,7 +6,7 @@ const WebsitesPage = () => {
   const [websites, setWebsites] = useState([]);
 
   const getWebsites = async () => {
-    let res = await fetch("/api/websites/list");
+    let res = await fetch("/api/websites/");
     let resJson = await res.json();
     setWebsites(resJson);
   };

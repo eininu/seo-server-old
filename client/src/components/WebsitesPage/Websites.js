@@ -28,31 +28,6 @@ const Websites = (props) => {
     }
   };
 
-  const createTableHandler = async () => {
-    let res = await fetch("/api/websites/create_table");
-    const resJson = await res.json();
-
-    if (resJson.message === "Database table created successfully") {
-      setAppState("configured");
-      sendNotification(resJson.message);
-    }
-
-    if (resJson.message === "App currently configured") {
-      setAppState("configured");
-      sendNotification(resJson.message);
-    }
-  };
-
-  const dropTableHandler = async () => {
-    let res = await fetch("/api/websites/drop_table");
-    const resJson = await res.json();
-
-    if (resJson.message === "Good!") {
-      setAppState("not configured");
-      sendNotification(resJson.message);
-    }
-  };
-
   const AskSudoPassword = () => {
     const [password, setPassword] = useState("");
 
@@ -126,117 +101,83 @@ const Websites = (props) => {
             <div className="block block-rounded">
               <div className="block-header block-header-default">
                 <h1 className="block-title">Websites</h1>
-                {appState === "configured" && (
-                  <div className="block-options">
-                    <button
-                      type="submit"
-                      className="btn btn-sm btn-alt-primary mx-1"
-                      onClick={dropTableHandler}
-                    >
-                      Drop Table
-                    </button>
-                    <button
-                      type="reset"
-                      className="btn btn-sm btn-alt-primary mx-1"
-                      onClick={() => {
-                        setModal(true);
-                      }}
-                    >
-                      Restart Nginx
-                    </button>
-                  </div>
-                )}
+
+                <div className="block-options">
+                  <button
+                    type="reset"
+                    className="btn btn-sm btn-alt-primary mx-1"
+                    onClick={() => {
+                      setModal(true);
+                    }}
+                  >
+                    Restart Nginx
+                  </button>
+                </div>
               </div>
 
               <div className="block-content">
-                {appState === "configured" && (
-                  <p className="text-muted">Here you can see your websites.</p>
-                )}
-                {appState === "not configured" && (
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div
-                        className="alert alert-light d-flex align-items-center justify-content-between"
-                        role="alert"
-                      >
-                        <div className="flex-grow-1 me-3">
-                          <p className="mb-0">
-                            This app isn't configured. Create tables in database
-                            for start using it.
-                          </p>
-                        </div>
-                        <div>
-                          <div className="col-sm">
-                            <button
-                              type="button"
-                              className="btn btn-success js-click-ripple-enabled"
-                              data-toggle="click-ripple"
-                              onClick={createTableHandler}
-                            >
-                              Create table
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/*<p className="text-muted">Here you can see your websites.</p>*/}
+
                 <div className="block block-rounded">
                   <div className="block-content">
-                    {appState === "configured" && (
-                      <table className="table table-vcenter">
-                        <thead>
-                          <tr>
-                            <th>Param</th>
-                            <th className="text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {props.websites.map((param, index) => {
-                            return (
-                              <tr key={index}>
-                                <td>{param.website}</td>
-                                <td className="text-center">
-                                  <div className="btn-group">
-                                    <form
-                                      onSubmit={(e) => {
-                                        e.preventDefault();
-                                        fetch(
-                                          "/api/websites/delete/" +
-                                            param.website
-                                        ).then((r) => {
-                                          if (r.status === 200) {
-                                            sendNotification(
-                                              `Website ${param.website} deleted successfully`
-                                            );
-                                            props.getWebsites();
-                                          }
-                                        });
-                                      }}
+                    <table className="table table-vcenter">
+                      <thead>
+                        <tr>
+                          <th>Website</th>
+                          <th className="text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {props.websites.map((param, index) => {
+                          return (
+                            <tr key={index}>
+                              <td>{param}</td>
+                              <td className="text-center">
+                                <div className="btn-group">
+                                  <form
+                                    onSubmit={(e) => {
+                                      e.preventDefault();
+                                      fetch("/api/websites/", {
+                                        method: "DELETE",
+                                        headers: {
+                                          "content-type":
+                                            "application/json; charset=utf-8",
+                                        },
+                                        body: JSON.stringify({
+                                          website: param,
+                                        }),
+                                      }).then((r) => {
+                                        if (r.status === 200) {
+                                          sendNotification(
+                                            `Website ${param} deleted successfully`
+                                          );
+                                          props.getWebsites();
+                                        }
+                                      });
+                                    }}
+                                  >
+                                    <button
+                                      type="submit"
+                                      className="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
+                                      data-bs-toggle="tooltip"
+                                      aria-label="Remove Client"
+                                      data-bs-original-title="Remove Client"
+                                      name={param.key}
+                                      // onClick={(e) => {
+                                      //   // deleteSettingHandler();
+                                      //   console.log(param.key);
+                                      // }}
                                     >
-                                      <button
-                                        type="submit"
-                                        className="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
-                                        data-bs-toggle="tooltip"
-                                        aria-label="Remove Client"
-                                        data-bs-original-title="Remove Client"
-                                        name={param.key}
-                                        // onClick={(e) => {
-                                        //   // deleteSettingHandler();
-                                        //   console.log(param.key);
-                                        // }}
-                                      >
-                                        <i className="fa fa-fw fa-times"></i>
-                                      </button>
-                                    </form>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    )}
+                                      <i className="fa fa-fw fa-times"></i>
+                                    </button>
+                                  </form>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
