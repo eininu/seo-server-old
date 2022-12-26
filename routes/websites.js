@@ -210,7 +210,7 @@ router.get("/delete/:website", async (req, res) => {
       result.push(`${serverIp} === ${clientIp} (skip)`);
     }
   }
-
+  console.log(`server ip: ${serverIp}, client ip ${clientIp}`);
   res.send({
     message: `Website ${website} successfully deleted from client ${clientIp}`,
     servers_log: result,
