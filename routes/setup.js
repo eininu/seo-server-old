@@ -1,6 +1,7 @@
 const express = require("express");
 const { dbRun } = require("../database/database");
 const { tgTestConfigure } = require("../modules/telegram");
+const fs = require("fs");
 const router = express.Router();
 
 const setAuthCode = () => `${Math.floor(100000 + Math.random() * 900000)}`;
@@ -68,6 +69,15 @@ router.post("/", async (req, res) => {
       tgUserId,
       `\`${generatedAuthCode}\` — your jp9 auth code`
     );
+  }
+
+  if (!fs.existsSync(process.cwd() + "/websites/uploads/")) {
+    fs.mkdirSync(process.cwd() + "/websites/");
+    fs.mkdirSync(process.cwd() + "/websites/uploads/");
+  }
+
+  if (!fs.existsSync(process.cwd() + "/nginx-configs/")) {
+    fs.mkdirSync(process.cwd() + "/nginx-configs/");
   }
 
   res.send({ message: `${result}` });

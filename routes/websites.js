@@ -4,15 +4,6 @@ const multer = require("multer");
 const fs = require("fs");
 const decompress = require("decompress");
 
-if (!fs.existsSync(process.cwd() + "/websites/uploads/")) {
-  fs.mkdirSync(process.cwd() + "/websites/");
-  fs.mkdirSync(process.cwd() + "/websites/uploads/");
-}
-
-if (!fs.existsSync(process.cwd() + "/nginx-configs/")) {
-  fs.mkdirSync(process.cwd() + "/nginx-configs/");
-}
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, process.cwd() + "/websites/uploads/");
