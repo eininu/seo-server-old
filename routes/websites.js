@@ -6,6 +6,7 @@ const fs = require("fs");
 const decompress = require("decompress");
 const { getServers } = require("../modules/getServers");
 const requestIp = require("request-ip");
+const { getServerIp } = require("../modules/getServerIp");
 
 let clientIp;
 
@@ -169,35 +170,46 @@ router.get("/delete/:website", async (req, res) => {
 
   // run task on another servers if we have them on database
   const servers = await getServers();
-  const serversArray = Object.values(servers).map((el) => el.server_ip);
-  console.log(servers);
+  let result = [];
 
-  const result = await Promise.all(
-    serversArray.map(async (server) => {
-      console.log(
-        "trying to fetch this url:  " +
-          `http://${server}/api/websites/delete/${website}`
-      );
-      try {
-        let request = await fetch(
-          `http://${server}/api/websites/delete/${website}`,
-          {
-            headers: {
-              islocalrequest: "yes",
-            },
-            body: null,
-            method: "GET",
+  if (servers.length > 0) {
+    const serverIp = await getServerIp();
+
+    // compare ip's for skip self server requests
+    if (serverIp !== clientIp) {
+      const serversArray = Object.values(servers).map((el) => el.server_ip);
+      console.log(servers);
+
+      result = await Promise.all(
+        serversArray.map(async (server) => {
+          console.log(
+            "trying to fetch this url:  " +
+              `http://${server}/api/websites/delete/${website}`
+          );
+          try {
+            let request = await fetch(
+              `http://${server}/api/websites/delete/${website}`,
+              {
+                headers: {
+                  islocalrequest: "yes",
+                },
+                body: null,
+                method: "GET",
+              }
+            );
+
+            const requestJson = await request.json();
+
+            return `${server}: ${requestJson.message}`;
+          } catch (e) {
+            return e;
           }
-        );
-
-        const requestJson = await request.json();
-
-        return `${server}: ${requestJson.message}`;
-      } catch (e) {
-        return e;
-      }
-    })
-  );
+        })
+      );
+    } else {
+      result.push(`${serverIp} === ${clientIp} (skip)`);
+    }
+  }
 
   res.send({
     message: `Website ${website} successfully deleted from client ${clientIp}`,
