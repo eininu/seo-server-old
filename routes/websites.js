@@ -229,7 +229,7 @@ router.get("/delete/:website", async (req, res) => {
       } else {
         log.push(`Servers (${servers}) not include client ip (${clientIp})`);
       }
-
+      console.log(log);
       return log;
     };
 
