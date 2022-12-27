@@ -54,9 +54,12 @@ router.get("/", async (req, res) => {
 
   const websitesDirectories = fs
     .readdirSync(process.cwd() + "/websites/")
-    .map((el) => {
-      return el;
-    });
+    .reduce((acc, rec) => {
+      if (rec !== "uploads") {
+        acc.push(rec);
+      }
+      return acc;
+    }, []);
 
   const lostWebsitesDirectories = websitesDirectories.map((el) => {
     if (!websitesFromDb.includes(el)) {
@@ -166,20 +169,39 @@ router.delete(
     // initiator
     // executor
 
-    const websites = fs
-      .readdirSync(process.cwd() + "/nginx-configs/")
-      .map((el) => {
-        return el.split(".conf")[0];
-      });
-
+    const websitesFromDB = await dbAll(`SELECT t.*
+      FROM websites t
+      ORDER BY website
+      LIMIT 501`);
+    const websites = await websitesFromDB.map((el) => `${el.website}`);
+    console.log(websitesFromDB);
     if (websites.includes(website)) {
-      fs.unlinkSync(process.cwd() + "/nginx-configs/" + website + ".conf");
-      fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
-      fs.rmSync(process.cwd() + "/websites/" + website, {
-        recursive: true,
-        force: true,
-      });
-      await dbRun(`DELETE from websites WHERE website=?`, website);
+      try {
+        fs.unlinkSync(process.cwd() + "/nginx-configs/" + website + ".conf");
+      } catch (err) {
+        console.log(err);
+      }
+
+      try {
+        fs.unlinkSync(process.cwd() + "/websites/uploads/" + website + ".zip");
+      } catch (err) {
+        console.log(err);
+      }
+
+      try {
+        fs.rmSync(process.cwd() + "/websites/" + website, {
+          recursive: true,
+          force: true,
+        });
+      } catch (err) {
+        console.log(err);
+      }
+
+      try {
+        await dbRun(`DELETE from websites WHERE website=${website}`);
+      } catch (err) {
+        console.log(err);
+      }
 
       next();
     } else {
