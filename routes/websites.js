@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
 const decompress = require("decompress");
-const { dbAll } = require("../database/database");
+const { dbAll, dbRun } = require("../database/database");
 var FormData = require("form-data");
 const axios = require("axios");
 
@@ -19,12 +19,57 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.get("/", async (req, res) => {
-  const websites = [];
+  const websitesFromDb = (
+    await dbAll(`SELECT t.*
+      FROM websites t
+      ORDER BY website
+      LIMIT 501`)
+  ).map((el) => `${el.website}`);
 
-  fs.readdirSync(process.cwd() + "/nginx-configs/").map((el) => {
-    websites.push(el.split(".conf")[0]);
+  const nginxConfigFiles = fs
+    .readdirSync(process.cwd() + "/nginx-configs/")
+    .map((el) => {
+      return el;
+    });
+
+  const lostNginxConfigs = nginxConfigFiles.map((el) => {
+    const configName = el.split(".conf")[0];
+    if (!websitesFromDb.includes(configName)) {
+      return el;
+    }
   });
-  res.json(websites);
+
+  const websiteUploadArchives = fs
+    .readdirSync(process.cwd() + "/websites/uploads/")
+    .map((el) => {
+      return el;
+    });
+
+  const lostUploadArchives = websiteUploadArchives.map((el) => {
+    const archiveName = el.split(".zip")[0];
+    if (!websitesFromDb.includes(archiveName)) {
+      return el;
+    }
+  });
+
+  const websitesDirectories = fs
+    .readdirSync(process.cwd() + "/websites/")
+    .map((el) => {
+      return el;
+    });
+
+  const lostWebsitesDirectories = websitesDirectories.map((el) => {
+    if (!websitesFromDb.includes(el)) {
+      return el;
+    }
+  });
+
+  res.send({
+    websitesFromDb,
+    lostNginxConfigs,
+    lostUploadArchives,
+    lostWebsitesDirectories,
+  });
 });
 
 let serversFromDb;
@@ -38,7 +83,7 @@ router.use(async (req, res, next) => {
 router.post(
   "/",
   upload.any(),
-  (req, res, next) => {
+  async (req, res, next) => {
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
     const files = req.files;
@@ -60,7 +105,9 @@ router.post(
       nginxConfig
     );
 
-    decompress(
+    await dbRun(`INSERT INTO websites(website) VALUES (?)`, [website]);
+
+    await decompress(
       process.cwd() + "/websites/uploads/" + website + ".zip",
       process.cwd() + "/websites/" + website
     );
@@ -132,6 +179,7 @@ router.delete(
         recursive: true,
         force: true,
       });
+      await dbRun(`DELETE from websites WHERE website=?`, website);
 
       next();
     } else {
@@ -158,7 +206,6 @@ router.delete(
               body: `{\"website\":\"${website}\"}`,
               method: "DELETE",
             });
-
             const requestJson = await request.json();
 
             log.push(server + ": " + requestJson.message);

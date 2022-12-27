@@ -140,6 +140,28 @@ const Websites = (props) => {
               </div>
 
               <div className="block-content">
+                {props.lostNginxConfigs && (
+                  <p>
+                    <span className="text-danger">Lost Nginx Configs</span>:{" "}
+                    {`${props.lostNginxConfigs}`}
+                  </p>
+                )}
+                {props.lostUploadArchives && (
+                  <p>
+                    <span className="text-danger">Lost Upload Archives</span>:{" "}
+                    {`${props.lostUploadArchives}`}
+                  </p>
+                )}
+
+                {props.lostWebsitesDirectories && (
+                  <p>
+                    <span className="text-danger">
+                      Lost Website Directories
+                    </span>
+                    : {`${props.lostWebsitesDirectories}`}
+                  </p>
+                )}
+
                 {/*<p className="text-muted">Here you can see your websites.</p>*/}
 
                 <div className="block block-rounded">
