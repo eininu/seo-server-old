@@ -114,6 +114,13 @@ const AddWebsiteForm = (props) => {
       body: formData,
     });
     let resJson = await res.json();
+    resJson.log.map((el) => {
+      if (el.split(": ")[1] === `${website} created successfully`) {
+        sendNotification(el);
+      } else {
+        sendNotification([el, "danger"]);
+      }
+    });
     props.getWebsites();
 
     itNeedsToRestartNginx ? setModal(true) : setModal(false);
