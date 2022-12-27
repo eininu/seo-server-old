@@ -90,7 +90,8 @@ router.delete(
     if (servers.includes(req.ip)) {
       res.send({ message: `${website} deleted successfully` });
     } else {
-      const log = Promise.all(
+      let log = [];
+      await Promise.all(
         servers.map(async (server) => {
           const request = await fetch(`http://${server}/api/websites/`, {
             headers: {
@@ -101,7 +102,7 @@ router.delete(
             body: `{\"website\":\"${website}\"}`,
             method: "DELETE",
           });
-          return await request.json();
+          log.push(await request.json());
         })
       );
 
