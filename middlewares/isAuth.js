@@ -3,8 +3,12 @@ const { dbAll } = require("../database/database");
 
 isAuth = async (req, res, next) => {
   // const authToken = req.headers["x-access-token"];
+  const serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
+  const servers = serversFromDb.map((el) => el.server_ip);
 
   if (process.env.NODE_ENV === "development") {
+    next();
+  } else if (servers.includes(req.ip)) {
     next();
   } else {
     const jwtSecretQuery = await dbAll(
