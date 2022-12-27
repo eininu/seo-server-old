@@ -25,35 +25,81 @@ router.get("/", async (req, res) => {
   res.json(websites);
 });
 
-router.post("/", upload.any(), (req, res) => {
-  const website = req.body.website;
-  const nginxConfig = req.body.nginx_config;
-  const files = req.files;
-
-  if (website.length === 0) {
-    return res.send({ message: "Website cannot be blank" });
-  }
-
-  if (nginxConfig === undefined) {
-    return res.send({ message: "Nginx Config cannot be blank" });
-  }
-
-  if (files.length === 0) {
-    return res.send({ message: "website archive cannot be blank" });
-  }
-
-  fs.writeFileSync(
-    process.cwd() + "/nginx-configs/" + website + ".conf",
-    nginxConfig
-  );
-
-  decompress(
-    process.cwd() + "/websites/uploads/" + website + ".zip",
-    process.cwd() + "/websites/" + website
-  );
-
-  res.send({ message: "ok" });
+let serversFromDb;
+let servers;
+router.use(async (req, res, next) => {
+  serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
+  servers = serversFromDb.map((el) => el.server_ip);
+  next();
 });
+
+router.post(
+  "/",
+  upload.any(),
+  (req, res, next) => {
+    const website = req.body.website;
+    const nginxConfig = req.body.nginx_config;
+    const files = req.files;
+
+    if (website.length === 0) {
+      return res.send({ message: "Website cannot be blank" });
+    }
+
+    if (nginxConfig === undefined) {
+      return res.send({ message: "Nginx Config cannot be blank" });
+    }
+
+    if (files.length === 0) {
+      return res.send({ message: "website archive cannot be blank" });
+    }
+
+    fs.writeFileSync(
+      process.cwd() + "/nginx-configs/" + website + ".conf",
+      nginxConfig
+    );
+
+    decompress(
+      process.cwd() + "/websites/uploads/" + website + ".zip",
+      process.cwd() + "/websites/" + website
+    );
+
+    next();
+  },
+  async (req, res, next) => {
+    const website = req.body.website;
+    const nginxConfig = req.body.nginx_config;
+    const files = req.files;
+
+    if (servers.includes(req.ip)) {
+      res.send({ message: `${website} created successfully` });
+    } else {
+      let log = [];
+
+      await Promise.all(
+        servers.map(async (server) => {
+          try {
+            const formData = new FormData();
+            formData.append("website", website);
+            formData.append("nginx_config", nginxConfig);
+            formData.append("files", files.target.files[0]);
+
+            let request = await fetch(`${server}/api/websites/`, {
+              method: "POST",
+              body: formData,
+            });
+            let requestJson = await request.json();
+
+            log.push(server + ": " + requestJson.message);
+          } catch (err) {
+            log.push(server + ": " + `${err}`);
+          }
+        })
+      );
+
+      res.send({ message: `${website} created successfully`, log });
+    }
+  }
+);
 
 router.delete(
   "/",
@@ -83,8 +129,6 @@ router.delete(
   },
   async (req, res) => {
     const website = req.body.website;
-    const serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
-    const servers = serversFromDb.map((el) => el.server_ip);
 
     if (servers.includes(req.ip)) {
       res.send({ message: `${website} deleted successfully` });
