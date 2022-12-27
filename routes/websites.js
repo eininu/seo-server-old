@@ -4,6 +4,8 @@ const multer = require("multer");
 const fs = require("fs");
 const decompress = require("decompress");
 const { dbAll } = require("../database/database");
+var FormData = require("form-data");
+const axios = require("axios");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -68,7 +70,6 @@ router.post(
   async (req, res, next) => {
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
-    const files = req.files;
 
     if (servers.includes(req.ip)) {
       res.send({ message: `${website} created successfully` });
@@ -78,18 +79,26 @@ router.post(
       await Promise.all(
         servers.map(async (server) => {
           try {
-            const formData = new FormData();
-            formData.append("website", website);
-            formData.append("nginx_config", nginxConfig);
-            formData.append("files", files.target.files[0]);
+            var form = new FormData();
+            form.append("website", website);
+            form.append("nginx_config", nginxConfig);
+            form.append(
+              "files",
+              fs.createReadStream(
+                process.cwd() + "/websites/uploads/" + website + ".zip"
+              )
+            );
 
-            let request = await fetch(`${server}/api/websites/`, {
-              method: "POST",
-              body: formData,
-            });
-            let requestJson = await request.json();
+            const formHeaders = form.getHeaders();
 
-            log.push(server + ": " + requestJson.message);
+            axios
+              .post("http://test.com/api/websites/", form, {
+                headers: {
+                  ...formHeaders,
+                },
+              })
+              .then((response) => log.push(response.message))
+              .catch((error) => error);
           } catch (err) {
             log.push(server + ": " + `${err}`);
           }
