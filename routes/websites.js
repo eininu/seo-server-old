@@ -67,7 +67,7 @@ router.post(
 
     next();
   },
-  async (req, res, next) => {
+  async (req, res) => {
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
 
@@ -91,14 +91,16 @@ router.post(
 
             const formHeaders = form.getHeaders();
 
-            axios
-              .post(`http://${server}/api/websites/`, form, {
+            const request = await axios.post(
+              `http://${server}/api/websites/`,
+              form,
+              {
                 headers: {
                   ...formHeaders,
                 },
-              })
-              .then((response) => log.push(response.message))
-              .catch((error) => error);
+              }
+            );
+            log.push(server + ": " + `${request.data}`);
           } catch (err) {
             log.push(server + ": " + `${err}`);
           }
