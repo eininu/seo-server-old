@@ -88,6 +88,30 @@ const Websites = (props) => {
       </>
     );
   };
+  const deleteWebsiteHandler = async (e) => {
+    e.preventDefault();
+    const website = e.target.website.value;
+
+    const requestToDelete = await fetch("/api/websites/", {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify({
+        website: website,
+      }),
+    });
+    const responseToDelete = await requestToDelete.json();
+    sendNotification(responseToDelete.message);
+    responseToDelete.log.map((el) => {
+      if (el.split(": ")[1] === `${website} deleted successfully`) {
+        sendNotification(el);
+      } else {
+        sendNotification([el, "danger"]);
+      }
+    });
+    props.getWebsites();
+  };
 
   return (
     <>
@@ -134,28 +158,12 @@ const Websites = (props) => {
                               <td>{param}</td>
                               <td className="text-center">
                                 <div className="btn-group">
-                                  <form
-                                    onSubmit={(e) => {
-                                      e.preventDefault();
-                                      fetch("/api/websites/", {
-                                        method: "DELETE",
-                                        headers: {
-                                          "content-type":
-                                            "application/json; charset=utf-8",
-                                        },
-                                        body: JSON.stringify({
-                                          website: param,
-                                        }),
-                                      }).then((r) => {
-                                        if (r.status === 200) {
-                                          sendNotification(
-                                            `Website ${param} deleted successfully`
-                                          );
-                                          props.getWebsites();
-                                        }
-                                      });
-                                    }}
-                                  >
+                                  <form onSubmit={deleteWebsiteHandler}>
+                                    <input
+                                      type={"hidden"}
+                                      name={"website"}
+                                      value={param}
+                                    />
                                     <button
                                       type="submit"
                                       className="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled"
