@@ -100,7 +100,7 @@ router.post(
                 },
               }
             );
-            log.push(server + ": " + `${request.data}`);
+            log.push(server + ": " + `${request.data.message}`);
           } catch (err) {
             log.push(server + ": " + `${err}`);
           }
