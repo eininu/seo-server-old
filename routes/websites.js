@@ -102,7 +102,7 @@ router.delete(
             body: `{\"website\":\"${website}\"}`,
             method: "DELETE",
           });
-          log.push(await request.json());
+          log.push(server + ": " + (await request.json()));
         })
       );
 
