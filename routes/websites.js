@@ -85,7 +85,6 @@ router.delete(
     const website = req.body.website;
     const serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
     const servers = serversFromDb.map((el) => el.server_ip);
-    console.log(servers);
 
     if (servers.includes(req.ip)) {
       res.send({ message: `${website} deleted successfully` });
