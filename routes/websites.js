@@ -92,7 +92,7 @@ router.post(
             const formHeaders = form.getHeaders();
 
             axios
-              .post("http://test.com/api/websites/", form, {
+              .post(`http://${server}/api/websites/`, form, {
                 headers: {
                   ...formHeaders,
                 },
