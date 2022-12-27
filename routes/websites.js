@@ -91,21 +91,26 @@ router.delete(
       res.send({ message: `${website} deleted successfully` });
     } else {
       let log = [];
+
       await Promise.all(
         servers.map(async (server) => {
-          const request = await fetch(`http://${server}/api/websites/`, {
-            headers: {
-              accept: "*/*",
-              "accept-language": "en-US,en;q=0.9,ru;q=0.8",
-              "content-type": "application/json; charset=utf-8",
-            },
-            body: `{\"website\":\"${website}\"}`,
-            method: "DELETE",
-          });
+          try {
+            const request = await fetch(`http://${server}/api/websites/`, {
+              headers: {
+                accept: "*/*",
+                "accept-language": "en-US,en;q=0.9,ru;q=0.8",
+                "content-type": "application/json; charset=utf-8",
+              },
+              body: `{\"website\":\"${website}\"}`,
+              method: "DELETE",
+            });
 
-          const requestJson = await request.json();
+            const requestJson = await request.json();
 
-          log.push(server + ": " + requestJson.message);
+            log.push(server + ": " + requestJson.message);
+          } catch (err) {
+            log.push(server + ": " + `${err}`);
+          }
         })
       );
 
