@@ -82,10 +82,26 @@ router.get("/", async (req, res) => {
 
 let serversFromDb;
 let servers;
+
 router.use(async (req, res, next) => {
   serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
   servers = serversFromDb.map((el) => el.server_ip);
   next();
+});
+router.get("/remote", async (req, res) => {
+  let remoteWebsites = [];
+
+  await Promise.all(
+    servers.map(async (server) => {
+      const request = await fetch(`http://${server}/api/websites`);
+      const requestJSON = await request.json();
+      const websitesObj = {};
+      websitesObj[server] = requestJSON.websitesFromDb;
+      remoteWebsites.push(websitesObj);
+    })
+  );
+
+  res.send(remoteWebsites);
 });
 
 router.post(
