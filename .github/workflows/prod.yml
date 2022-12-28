@@ -13,4 +13,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
-          script: whoami
+          script: |
+            cd jp9.org
+            git pull
+            npm i
+            npm run setup
+            npm run client build
+            pm2 restart 0
