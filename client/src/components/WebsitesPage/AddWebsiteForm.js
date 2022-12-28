@@ -11,12 +11,35 @@ const AddWebsiteForm = (props) => {
   index index.html;
   root /home/ein/jp9.org/websites/${website};
 
+  location / {
+    try_files $uri /index.html;  
+  }
+
   location /api/ {
           proxy_pass http://127.0.0.1:3001/public_api;
   }
 
   listen 80;
   listen [::]:80;
+}
+
+server {
+  server_name ${website};
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+  index index.html;
+  root /home/ein/jp9.org/websites/${website};
+
+  location / {
+    try_files $uri /index.html;  
+  }
+
+  location /api/ {
+          proxy_pass http://127.0.0.1:3001/public_api;
+  }
+
+  listen 443 http2 ssl;
+  listen [::]:443 http2 ssl;
 }`;
 
   const [nginxConfig, setNginxConfig] = useState(undefined);
