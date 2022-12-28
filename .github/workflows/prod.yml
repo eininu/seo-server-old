@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Build & Run
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with:
           script: |
             git pull
