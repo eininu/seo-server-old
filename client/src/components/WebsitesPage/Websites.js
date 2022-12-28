@@ -159,6 +159,10 @@ const Websites = (props) => {
     console.log();
   };
 
+  const closeEditModal = () => {
+    setModalToEdit(false);
+  };
+
   return (
     <>
       <div className="content">
@@ -171,6 +175,7 @@ const Websites = (props) => {
                 setModalToEdit={setModalToEdit}
               />
             }
+            closeModal={closeEditModal}
           />
         )}
         {nginxReloadModal && (
