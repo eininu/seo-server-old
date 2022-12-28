@@ -367,98 +367,117 @@ router.post("/import", downloadBackup.any(), async (req, res) => {
   });
 });
 
-router.use("/backup", async (req, res) => {
-  let meganz_login;
-  let meganz_password;
-  try {
-    meganz_login = (
-      await dbAll(`SELECT value FROM settings WHERE key = 'meganz_login'`)
-    )[0].value;
-  } catch (err) {
-    return res.send({ message: `meganz_login undefined` });
-  }
-  try {
-    meganz_password = (
-      await dbAll(`SELECT value FROM settings WHERE key = 'meganz_password'`)
-    )[0].value;
-  } catch (err) {
-    return res.send({ message: `meganz_password undefined` });
-  }
-
-  if (!meganz_password || !meganz_login) {
-    return res.send({ message: `undefined credentials` });
-  }
-
-  const { Storage } = { ...mega };
-
-  let storage;
-  try {
-    storage = await new Storage({
-      email: meganz_login,
-      password: meganz_password,
-    }).ready;
-  } catch (err) {
-    return res.send({ message: `${err}` });
-  }
-
-  const output = fs.createWriteStream(
-    process.cwd() + "/public/uploads" + "/backup.zip"
-  );
-  const archive = archiver("zip", {
-    zlib: { level: 9 }, // Sets the compression level.
-  });
-
-  // listen for all archive data to be written
-  // 'close' event is fired only when a file descriptor is involved
-  output.on("close", function () {
-    console.log(archive.pointer() + " total bytes");
-    console.log(
-      "archiver has been finalized and the output file descriptor has closed."
+router.use(
+  "/backup",
+  async (req, res, next) => {
+    const output = fs.createWriteStream(
+      process.cwd() + "/public/uploads" + "/backup.zip"
     );
-  });
+    const archive = archiver("zip", {
+      zlib: { level: 9 }, // Sets the compression level.
+    });
 
-  output.on("end", function () {
-    console.log("Data has been drained");
-  });
+    // listen for all archive data to be written
+    // 'close' event is fired only when a file descriptor is involved
+    output.on("close", function () {
+      console.log(archive.pointer() + " total bytes");
+      console.log(
+        "archiver has been finalized and the output file descriptor has closed."
+      );
+    });
 
-  // good practice to catch this error explicitly
-  archive.on("error", function (err) {
-    throw err;
-  });
+    output.on("end", function () {
+      console.log("Data has been drained");
+    });
 
-  // pipe archive data to the file
-  archive.pipe(output);
+    // good practice to catch this error explicitly
+    archive.on("error", function (err) {
+      throw err;
+    });
 
-  archive.directory(process.cwd() + "/nginx-configs/", "/nginx-configs/");
-  archive.directory(process.cwd() + "/websites/", "/websites/");
+    // pipe archive data to the file
+    archive.pipe(output);
 
-  const websitesTable = JSON.stringify(await dbAll(`SELECT * FROM websites`));
+    archive.directory(process.cwd() + "/nginx-configs/", "/nginx-configs/");
+    archive.directory(process.cwd() + "/websites/", "/websites/");
 
-  await archive.append(`${websitesTable}`, { name: "websites.json" });
+    const websitesTable = JSON.stringify(await dbAll(`SELECT * FROM websites`));
 
-  archive.finalize().then(() => {});
+    await archive.append(`${websitesTable}`, { name: "websites.json" });
 
-  const backupFile = fs.readFileSync(
-    process.cwd() + "/public/uploads/backup.zip"
-  );
+    archive.finalize().then((err) => {
+      if (err) {
+        res.send({ message: `${err}` });
+      } else {
+        var file = process.cwd() + "/public/uploads" + "/backup.zip";
 
-  const date = new Date();
+        var filestream = fs.createReadStream(file);
 
-  let day = date.getDate();
-  let month = date.getMonth() + 1;
-  let year = date.getFullYear();
+        filestream.on("end", function () {
+          fs.unlinkSync(process.cwd() + "/public/uploads/" + "backup.zip");
+        });
 
-  // This arrangement can be altered based on how we want the date's format to appear.
-  let currentDate = `${day}-${month}-${year}`;
+        // filestream.pipe(next());
+        next();
+      }
+    });
+  },
+  async (req, res) => {
+    let meganz_login;
+    let meganz_password;
+    try {
+      meganz_login = (
+        await dbAll(`SELECT value FROM settings WHERE key = 'meganz_login'`)
+      )[0].value;
+    } catch (err) {
+      return res.send({ message: `meganz_login undefined` });
+    }
+    try {
+      meganz_password = (
+        await dbAll(`SELECT value FROM settings WHERE key = 'meganz_password'`)
+      )[0].value;
+    } catch (err) {
+      return res.send({ message: `meganz_password undefined` });
+    }
 
-  const file = await storage.upload(
-    "backup-" + currentDate + ".zip",
-    backupFile
-  ).complete;
+    if (!meganz_password || !meganz_login) {
+      return res.send({ message: `undefined credentials` });
+    }
 
-  fs.unlinkSync(process.cwd() + "/public/uploads/backup.zip");
+    const { Storage } = { ...mega };
 
-  return res.send({ message: "Backup was uploaded!" });
-});
+    let storage;
+    try {
+      storage = await new Storage({
+        email: meganz_login,
+        password: meganz_password,
+      }).ready;
+    } catch (err) {
+      return res.send({ message: `${err}` });
+    }
+
+    const backupFile = fs.readFileSync(
+      process.cwd() + "/public/uploads/backup.zip"
+    );
+
+    const date = new Date();
+
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+
+    // This arrangement can be altered based on how we want the date's format to appear.
+    let currentDate = `${day}-${month}-${year}`;
+
+    const file = await storage.upload(
+      "backup-" + currentDate + ".zip",
+      backupFile
+    ).complete;
+
+    fs.unlinkSync(process.cwd() + "/public/uploads/backup.zip");
+
+    return res.send({ message: "Backup was uploaded!" });
+  }
+);
 
 module.exports = router;

@@ -137,3 +137,4 @@ dist
 # websites app
 /websites/*
 /nginx-configs/*
+public/uploads/*
