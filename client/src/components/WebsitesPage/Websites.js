@@ -1,6 +1,7 @@
 import sendNotification from "../Notification";
 import { useEffect, useState } from "react";
 import Modal from "../Modal";
+import EditWebsiteForm from "./EditWebsiteForm";
 
 const Websites = (props) => {
   const [appState, setAppState] = useState(undefined);
@@ -144,9 +145,34 @@ const Websites = (props) => {
     sendNotification(requestJson.message);
   };
 
+  const [websiteToEdit, setWebsiteToEdit] = useState();
+  const [modalToEdit, setModalToEdit] = useState();
+  const [nginxConfigToEdit, setNginxConfigToEdit] = useState();
+  const editWebsiteHandler = async (e) => {
+    e.preventDefault();
+    const website = e.target.website.value;
+    const request = await fetch("/api/websites/config/" + website);
+    const requestJson = await request.json();
+    setWebsiteToEdit(website);
+    setNginxConfigToEdit(requestJson.nginxConfig);
+    setModalToEdit(true);
+    console.log();
+  };
+
   return (
     <>
       <div className="content">
+        {modalToEdit && (
+          <Modal
+            modalText={
+              <EditWebsiteForm
+                website={websiteToEdit}
+                nginxConfig={nginxConfigToEdit}
+                setModalToEdit={setModalToEdit}
+              />
+            }
+          />
+        )}
         {nginxReloadModal && (
           <Modal
             closeModal={closeNginxReloadModal}
@@ -299,6 +325,23 @@ const Websites = (props) => {
                               <td>{param}</td>
                               <td className="text-center">
                                 <div className="btn-group">
+                                  <form onSubmit={editWebsiteHandler}>
+                                    <input
+                                      type={"hidden"}
+                                      name={"website"}
+                                      value={param}
+                                    />
+                                    <button
+                                      type="submit"
+                                      className="btn btn-sm btn-alt-secondary js-bs-tooltip-enabled mx-2"
+                                      data-bs-toggle="tooltip"
+                                      aria-label="Edit Website"
+                                      data-bs-original-title="Edit Website"
+                                      name={param.key}
+                                    >
+                                      <i className="fa fa-fw fa-edit"></i>
+                                    </button>
+                                  </form>
                                   <form onSubmit={deleteWebsiteHandler}>
                                     <input
                                       type={"hidden"}

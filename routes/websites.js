@@ -112,6 +112,7 @@ router.post(
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
     const files = req.files;
+    const itsEditAction = req.body.is_edit === "yes";
 
     if (website.length === 0) {
       return res.send({ message: "Website cannot be blank" });
@@ -121,7 +122,7 @@ router.post(
       return res.send({ message: "Nginx Config cannot be blank" });
     }
 
-    if (files.length === 0) {
+    if (!itsEditAction && files.length === 0) {
       return res.send({ message: "website archive cannot be blank" });
     }
 
@@ -132,19 +133,22 @@ router.post(
 
     await dbRun(`INSERT INTO websites(website) VALUES (?)`, [website]);
 
-    await decompress(
-      process.cwd() + "/websites/uploads/" + website + ".zip",
-      process.cwd() + "/websites/" + website
-    );
+    if (!itsEditAction) {
+      await decompress(
+        process.cwd() + "/websites/uploads/" + website + ".zip",
+        process.cwd() + "/websites/" + website
+      );
+    }
 
     next();
   },
   async (req, res) => {
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
+    const itsEditAction = req.body.is_edit === "yes" ? "updated" : "created";
 
     if (servers.includes(req.ip)) {
-      res.send({ message: `${website} created successfully` });
+      res.send({ message: `${website} ${itsEditAction} successfully` });
     } else {
       let log = [];
 
@@ -179,10 +183,26 @@ router.post(
         })
       );
 
-      res.send({ message: `${website} created successfully`, log });
+      res.send({ message: `${website} ${itsEditAction} successfully`, log });
     }
   }
 );
+
+router.get("/config/:website", (req, res) => {
+  const website = req.params.website;
+
+  const nginxConfig = fs.readFileSync(
+    process.cwd() + "/nginx-configs/" + website + ".conf",
+    "utf-8"
+  );
+
+  res.send({ nginxConfig });
+});
+router.get("/download/:website", (req, res) => {
+  const website = req.params.website;
+
+  res.download(process.cwd() + "/websites/uploads/" + website + ".zip");
+});
 
 router.delete(
   "/",
