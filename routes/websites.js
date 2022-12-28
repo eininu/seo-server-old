@@ -32,13 +32,14 @@ router.get("/", async (req, res) => {
       return el;
     });
 
-  const lostNginxConfigs = nginxConfigFiles.map((el) => {
-    const configName = el.split(".conf")[0];
+  const lostNginxConfigs = nginxConfigFiles.reduce((acc, rec) => {
+    const configName = rec.split(".conf")[0];
 
     if (!websitesFromDb.includes(configName)) {
-      return el;
+      acc.push(configName);
     }
-  });
+    return acc;
+  }, []);
 
   const websiteUploadArchives = fs
     .readdirSync(process.cwd() + "/websites/uploads/")
@@ -46,12 +47,13 @@ router.get("/", async (req, res) => {
       return el;
     });
 
-  const lostUploadArchives = websiteUploadArchives.map((el) => {
-    const archiveName = el.split(".zip")[0];
+  const lostUploadArchives = websiteUploadArchives.reduce((acc, rec) => {
+    const archiveName = rec.split(".zip")[0];
     if (!websitesFromDb.includes(archiveName)) {
-      return el;
+      acc.push(archiveName);
     }
-  });
+    return acc;
+  }, []);
 
   const websitesDirectories = fs
     .readdirSync(process.cwd() + "/websites/")
@@ -62,11 +64,12 @@ router.get("/", async (req, res) => {
       return acc;
     }, []);
 
-  const lostWebsitesDirectories = websitesDirectories.map((el) => {
-    if (!websitesFromDb.includes(el)) {
-      return el;
+  const lostWebsitesDirectories = websitesDirectories.reduce((acc, rec) => {
+    if (!websitesFromDb.includes(rec)) {
+      acc.push(rec);
     }
-  });
+    return acc;
+  }, []);
 
   res.send({
     websitesFromDb,
