@@ -36,7 +36,6 @@ router.get("/", async (req, res) => {
     const configName = el.split(".conf")[0];
 
     if (!websitesFromDb.includes(configName)) {
-      console.log(el);
       return el;
     }
   });
@@ -176,7 +175,6 @@ router.delete(
       ORDER BY website
       LIMIT 501`);
     const websites = await websitesFromDB.map((el) => `${el.website}`);
-    console.log(websitesFromDB);
     if (websites.includes(website)) {
       try {
         fs.unlinkSync(process.cwd() + "/nginx-configs/" + website + ".conf");
