@@ -6,8 +6,9 @@ const decompress = require("decompress");
 const { dbAll, dbRun } = require("../database/database");
 var FormData = require("form-data");
 const axios = require("axios");
+const archiver = require("archiver");
 
-const storage = multer.diskStorage({
+const websitesStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, process.cwd() + "/websites/uploads/");
   },
@@ -16,7 +17,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const uploadWebsite = multer({ storage: websitesStorage });
 
 router.get("/", async (req, res) => {
   const websitesFromDb = (
@@ -89,7 +90,7 @@ router.use(async (req, res, next) => {
 
 router.post(
   "/",
-  upload.any(),
+  uploadWebsite.any(),
   async (req, res, next) => {
     const website = req.body.website;
     const nginxConfig = req.body.nginx_config;
@@ -246,5 +247,100 @@ router.delete(
     }
   }
 );
+
+router.get("/export", async (req, res) => {
+  // create a file to stream archive data to.
+  const output = fs.createWriteStream(
+    process.cwd() + "/public/uploads" + "/export_file.zip"
+  );
+  const archive = archiver("zip", {
+    zlib: { level: 9 }, // Sets the compression level.
+  });
+
+  // listen for all archive data to be written
+  // 'close' event is fired only when a file descriptor is involved
+  output.on("close", function () {
+    console.log(archive.pointer() + " total bytes");
+    console.log(
+      "archiver has been finalized and the output file descriptor has closed."
+    );
+  });
+
+  output.on("end", function () {
+    console.log("Data has been drained");
+  });
+
+  // good practice to catch this error explicitly
+  archive.on("error", function (err) {
+    throw err;
+  });
+
+  // pipe archive data to the file
+  archive.pipe(output);
+
+  archive.directory(process.cwd() + "/nginx-configs/", "/nginx-configs/");
+  archive.directory(process.cwd() + "/websites/", "/websites/");
+
+  const websitesTable = JSON.stringify(await dbAll(`SELECT * FROM websites`));
+
+  await archive.append(`${websitesTable}`, { name: "websites.json" });
+
+  archive.finalize().then((err) => {
+    if (err) {
+      res.send({ message: `${err}` });
+    } else {
+      var file = process.cwd() + "/public/uploads" + "/export_file.zip";
+
+      var filestream = fs.createReadStream(file);
+
+      filestream.on("end", function () {
+        fs.unlinkSync(process.cwd() + "/public/uploads/" + "export_file.zip");
+      });
+
+      filestream.pipe(res);
+      //
+    }
+  });
+});
+
+const backupStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, process.cwd() + "/public/uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, "imported_backup" + ".zip");
+  },
+});
+
+const downloadBackup = multer({ storage: backupStorage });
+router.post("/import", downloadBackup.any(), async (req, res) => {
+  decompress(
+    process.cwd() + "/public/uploads/" + "imported_backup.zip",
+    process.cwd(),
+    {
+      filter: (file) => {
+        // file.path = `unicorn-${file.path}`;
+        if (file.path === `websites.json`) {
+          const websitesTable = JSON.parse(file.data.toString("utf-8"));
+          websitesTable.map((websites_string) => {
+            dbRun(
+              `INSERT INTO websites (website) VALUES ('${websites_string.website}')`
+            );
+          });
+        } else {
+          if (
+            file.path.startsWith("nginx-configs") ||
+            file.path.startsWith("websites")
+          ) {
+            return file;
+          }
+        }
+      },
+    }
+  ).then(() => {
+    fs.unlinkSync(process.cwd() + "/public/uploads/" + "imported_backup.zip");
+    res.send({ message: "Successfully imported" });
+  });
+});
 
 module.exports = router;

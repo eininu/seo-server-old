@@ -4,15 +4,20 @@ import Modal from "../Modal";
 
 const Websites = (props) => {
   const [appState, setAppState] = useState(undefined);
+  const [backupArchive, setBackupArchive] = useState();
 
   useEffect(() => {
     checkStatus();
   }, [appState]);
 
-  const [modal, setModal] = useState();
+  const [nginxReloadModal, setNginxReloadModal] = useState();
+  const [importWebsitesModal, setImportWebsitesModal] = useState(false);
 
-  const closeModal = () => {
-    setModal(false);
+  const closeNginxReloadModal = () => {
+    setNginxReloadModal(false);
+  };
+  const closeImportWebsitesModal = () => {
+    setImportWebsitesModal(false);
   };
 
   const checkStatus = async () => {
@@ -48,7 +53,7 @@ const Websites = (props) => {
       const resJson = await res.json();
 
       sendNotification([resJson.message, "danger"]);
-      setModal(false);
+      setNginxReloadModal(false);
     };
 
     return (
@@ -113,11 +118,93 @@ const Websites = (props) => {
     props.getWebsites();
   };
 
+  const loadBackupHandler = async (e) => {
+    e.preventDefault();
+
+    if (!backupArchive) {
+      return sendNotification(["Backup Archive cannot be blank", "danger"]);
+    }
+    var formData = new FormData();
+    formData.append("files", backupArchive.target.files[0]);
+
+    let res = await fetch("/api/websites/import", {
+      method: "POST",
+      body: formData,
+    });
+    let resJson = await res.json();
+    sendNotification(resJson.message);
+    props.getWebsites();
+    // setImportWebsitesModal(false);
+  };
+  // const loadBackup = async (e) => {
+  //   e.preventDefault();
+  //
+  //   // if (!websiteArchive) {
+  //   //   return sendNotification(["Website Archive cannot be blank", "danger"]);
+  //   // }
+  //
+  //   formData.append("files", websiteArchive.target.files[0]);
+  //
+  //   let res = await fetch("/api/websites/import", {
+  //     method: "POST",
+  //     body: formData,
+  //   });
+  //   let resJson = await res.json();
+  //   resJson.log.map((el) => {
+  //     if (el.split(": ")[1] === `${website} created successfully`) {
+  //       sendNotification(el);
+  //     } else {
+  //       sendNotification([el, "danger"]);
+  //     }
+  //   });
+  //   props.getWebsites();
+  //
+  //   itNeedsToRestartNginx ? setModal(true) : setModal(false);
+  //
+  //   return sendNotification(`${resJson.message}`, "info");
+  // };
+
   return (
     <>
       <div className="content">
-        {modal && (
-          <Modal closeModal={closeModal} modalText={<AskSudoPassword />} />
+        {nginxReloadModal && (
+          <Modal
+            closeModal={closeNginxReloadModal}
+            modalText={<AskSudoPassword />}
+          />
+        )}
+        {importWebsitesModal && (
+          <Modal
+            closeModal={closeImportWebsitesModal}
+            modalText={
+              <form onSubmit={loadBackupHandler}>
+                <div className="mb-4">
+                  <label className="form-label" htmlFor="example-file-input">
+                    Backup Archive
+                  </label>
+                  <input
+                    className="form-control"
+                    type="file"
+                    // accept="application/x-zip-compressed"
+                    accept=".zip"
+                    id="backup_archive"
+                    name="backup_archive"
+                    onInput={(e) => {
+                      e.stopPropagation();
+                      e.nativeEvent.stopImmediatePropagation();
+                      setBackupArchive(e);
+                    }}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-block btn-alt-primary col-12"
+                >
+                  Add Website
+                </button>
+              </form>
+            }
+          />
         )}
 
         <div className="row">
@@ -129,9 +216,27 @@ const Websites = (props) => {
                 <div className="block-options">
                   <button
                     type="reset"
+                    className="btn  btn-outline-light btn-sm mx-1"
+                    onClick={() => {
+                      window.open("/api/websites/export");
+                    }}
+                  >
+                    <i className="fa fa-fw fa fa-download"></i>
+                  </button>
+                  <button
+                    type="reset"
+                    className="btn  btn-outline-light btn-sm mx-1"
+                    onClick={() => {
+                      setImportWebsitesModal(true);
+                    }}
+                  >
+                    <i className="fa fa-fw fa fa-upload"></i>
+                  </button>
+                  <button
+                    type="reset"
                     className="btn btn-sm btn-alt-primary mx-1"
                     onClick={() => {
-                      setModal(true);
+                      setNginxReloadModal(true);
                     }}
                   >
                     Restart Nginx
