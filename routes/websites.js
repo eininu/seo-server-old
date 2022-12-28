@@ -248,6 +248,13 @@ router.delete(
   }
 );
 
+router.use((req, res, next) => {
+  if (!fs.existsSync(process.cwd() + "/public/uploads/")) {
+    fs.mkdirSync(process.cwd() + "/public/uploads/");
+  }
+  next();
+});
+
 router.get("/export", async (req, res) => {
   // create a file to stream archive data to.
   const output = fs.createWriteStream(
