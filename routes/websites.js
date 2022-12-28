@@ -34,7 +34,9 @@ router.get("/", async (req, res) => {
 
   const lostNginxConfigs = nginxConfigFiles.map((el) => {
     const configName = el.split(".conf")[0];
+
     if (!websitesFromDb.includes(configName)) {
+      console.log(el);
       return el;
     }
   });
@@ -198,7 +200,9 @@ router.delete(
       }
 
       try {
-        await dbRun(`DELETE from websites WHERE website=${website}`);
+        await dbRun(`DELETE
+                     FROM websites
+                     WHERE website = '${website}';`);
       } catch (err) {
         console.log(err);
       }
