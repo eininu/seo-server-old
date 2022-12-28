@@ -10,7 +10,8 @@
     "client:install": "npm install --prefix client",
     "client:build": "npm run build --prefix client",
     "setup": "concurrently \"npm run client:install\" \"npm run server:install\"",
-    "dev": "cross-env NODE_ENV=development concurrently \"npm run server\" \"npm run client\""
+    "dev": "cross-env NODE_ENV=development concurrently \"npm run server\" \"npm run client\"",
+    "restart": "pm2 restart 0"
   },
   "dependencies": {
     "archiver": "^5.3.1",
