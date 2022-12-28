@@ -134,35 +134,8 @@ const Websites = (props) => {
     let resJson = await res.json();
     sendNotification(resJson.message);
     props.getWebsites();
-    // setImportWebsitesModal(false);
+    setImportWebsitesModal(false);
   };
-  // const loadBackup = async (e) => {
-  //   e.preventDefault();
-  //
-  //   // if (!websiteArchive) {
-  //   //   return sendNotification(["Website Archive cannot be blank", "danger"]);
-  //   // }
-  //
-  //   formData.append("files", websiteArchive.target.files[0]);
-  //
-  //   let res = await fetch("/api/websites/import", {
-  //     method: "POST",
-  //     body: formData,
-  //   });
-  //   let resJson = await res.json();
-  //   resJson.log.map((el) => {
-  //     if (el.split(": ")[1] === `${website} created successfully`) {
-  //       sendNotification(el);
-  //     } else {
-  //       sendNotification([el, "danger"]);
-  //     }
-  //   });
-  //   props.getWebsites();
-  //
-  //   itNeedsToRestartNginx ? setModal(true) : setModal(false);
-  //
-  //   return sendNotification(`${resJson.message}`, "info");
-  // };
 
   return (
     <>
@@ -200,7 +173,7 @@ const Websites = (props) => {
                   type="submit"
                   className="btn btn-block btn-alt-primary col-12"
                 >
-                  Add Website
+                  Import Websites
                 </button>
               </form>
             }
