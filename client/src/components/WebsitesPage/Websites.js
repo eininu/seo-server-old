@@ -218,6 +218,33 @@ const Websites = (props) => {
               </div>
 
               <div className="block-content">
+                {props.differenceBetweenWebsites && (
+                  <>
+                    <p>
+                      <span className="text-danger">Caution</span>: Remote
+                      servers have something that you don't have locally
+                    </p>
+                    {/*<p>{JSON.stringify(props.differenceBetweenWebsites)}</p>*/}
+                    <ul>
+                      {props.differenceBetweenWebsites.map((el) => {
+                        let server;
+                        let websites;
+                        Object.entries(el).map(([key, value]) => {
+                          server = key;
+                          websites = value;
+                          // return el;
+                        });
+                        return (
+                          <li>
+                            {server}: {websites.toString()}
+                          </li>
+                        );
+                        // return el;
+                      })}
+                    </ul>
+                  </>
+                )}
+
                 {props.lostNginxConfigs && (
                   <p>
                     <span className="text-danger">Lost Nginx Configs</span>:{" "}
