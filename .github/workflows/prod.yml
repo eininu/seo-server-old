@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Build & Run
-        uses: appleboy/ssh-action@main
+        uses: appleboy/ssh-action@master
         with:
           script: |
             git pull
