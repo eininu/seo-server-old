@@ -19,14 +19,6 @@ const shell = require("shelljs");
 
 // sudo nginx -s reload
 
-router.get("/status/:password", async (req, res) => {
-  const password = req.params.password;
-  // const command = shell.exec("whoami");
-  const command = await shell.exec(`echo ${password} | sudo -S nginx -t`)
-    .stdout;
-  res.send({ message: `${command}` });
-});
-
 router.post("/reload", (req, res) => {
   const password = req.body.password;
   // const command = shell.exec("whoami");
