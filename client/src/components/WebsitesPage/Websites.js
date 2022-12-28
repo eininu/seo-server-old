@@ -137,6 +137,13 @@ const Websites = (props) => {
     setImportWebsitesModal(false);
   };
 
+  const createBackupHandler = async (e) => {
+    e.preventDefault();
+    const request = await fetch("/api/websites/backup");
+    const requestJson = await request.json();
+    sendNotification(requestJson.message);
+  };
+
   return (
     <>
       <div className="content">
@@ -187,6 +194,13 @@ const Websites = (props) => {
                 <h1 className="block-title">Websites</h1>
 
                 <div className="block-options">
+                  <button
+                    type="reset"
+                    className="btn  btn-outline-light btn-sm mx-1"
+                    onClick={createBackupHandler}
+                  >
+                    <i className="fa fa-fw si si-cloud-upload"></i>
+                  </button>
                   <button
                     type="reset"
                     className="btn  btn-outline-light btn-sm mx-1"

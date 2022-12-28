@@ -7,6 +7,7 @@ const { dbAll, dbRun } = require("../database/database");
 var FormData = require("form-data");
 const axios = require("axios");
 const archiver = require("archiver");
+const mega = require("megajs");
 
 const websitesStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -364,6 +365,100 @@ router.post("/import", downloadBackup.any(), async (req, res) => {
     fs.unlinkSync(process.cwd() + "/public/uploads/" + "imported_backup.zip");
     res.send({ message: "Successfully imported" });
   });
+});
+
+router.use("/backup", async (req, res) => {
+  let meganz_login;
+  let meganz_password;
+  try {
+    meganz_login = (
+      await dbAll(`SELECT value FROM settings WHERE key = 'meganz_login'`)
+    )[0].value;
+  } catch (err) {
+    return res.send({ message: `meganz_login undefined` });
+  }
+  try {
+    meganz_password = (
+      await dbAll(`SELECT value FROM settings WHERE key = 'meganz_password'`)
+    )[0].value;
+  } catch (err) {
+    return res.send({ message: `meganz_password undefined` });
+  }
+
+  if (!meganz_password || !meganz_login) {
+    return res.send({ message: `undefined credentials` });
+  }
+
+  const { Storage } = { ...mega };
+
+  let storage;
+  try {
+    storage = await new Storage({
+      email: meganz_login,
+      password: meganz_password,
+    }).ready;
+  } catch (err) {
+    return res.send({ message: `${err}` });
+  }
+
+  const output = fs.createWriteStream(
+    process.cwd() + "/public/uploads" + "/backup.zip"
+  );
+  const archive = archiver("zip", {
+    zlib: { level: 9 }, // Sets the compression level.
+  });
+
+  // listen for all archive data to be written
+  // 'close' event is fired only when a file descriptor is involved
+  output.on("close", function () {
+    console.log(archive.pointer() + " total bytes");
+    console.log(
+      "archiver has been finalized and the output file descriptor has closed."
+    );
+  });
+
+  output.on("end", function () {
+    console.log("Data has been drained");
+  });
+
+  // good practice to catch this error explicitly
+  archive.on("error", function (err) {
+    throw err;
+  });
+
+  // pipe archive data to the file
+  archive.pipe(output);
+
+  archive.directory(process.cwd() + "/nginx-configs/", "/nginx-configs/");
+  archive.directory(process.cwd() + "/websites/", "/websites/");
+
+  const websitesTable = JSON.stringify(await dbAll(`SELECT * FROM websites`));
+
+  await archive.append(`${websitesTable}`, { name: "websites.json" });
+
+  archive.finalize().then(() => {});
+
+  const backupFile = fs.readFileSync(
+    process.cwd() + "/public/uploads/backup.zip"
+  );
+
+  const date = new Date();
+
+  let day = date.getDate();
+  let month = date.getMonth() + 1;
+  let year = date.getFullYear();
+
+  // This arrangement can be altered based on how we want the date's format to appear.
+  let currentDate = `${day}-${month}-${year}`;
+
+  const file = await storage.upload(
+    "backup-" + currentDate + ".zip",
+    backupFile
+  ).complete;
+
+  fs.unlinkSync(process.cwd() + "/public/uploads/backup.zip");
+
+  return res.send({ message: "Backup was uploaded!" });
 });
 
 module.exports = router;
