@@ -7,7 +7,7 @@ const AddWebsiteForm = (props) => {
   const [website, setWebsite] = useState("");
 
   let nginxConfigExample = `server {
-  server_name ${website};
+  server_name ${website} www.${website};
   index index.html;
   root /home/ein/jp9.org/websites/${website};
 
@@ -24,7 +24,7 @@ const AddWebsiteForm = (props) => {
 }
 
 server {
-  server_name ${website};
+  server_name ${website} www.${website};
   ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
   ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
   index index.html;
