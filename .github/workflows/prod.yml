@@ -1,0 +1,27 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [19.x]
+
+    steps:
+      - name: Build & Run
+      - uses: actions/checkout@v3
+        with:
+          script: |
+            git pull
+            npm i
+            npm run setup
+            npm run client:build
+            pm2 restart 0
