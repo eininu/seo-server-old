@@ -11,6 +11,7 @@ const EditWebsiteForm = (props) => {
   const editWebsiteHandler = async (e) => {
     e.preventDefault();
     setBlockLoader(true);
+
     var formData = new FormData();
     formData.append("website", website);
     formData.append("nginx_config", nginxConfig);
@@ -18,26 +19,44 @@ const EditWebsiteForm = (props) => {
     if (websiteArchive !== "edit") {
       formData.append("files", websiteArchive.target.files[0]);
     }
+    var randomNumber = Math.floor(1000 + Math.random() * 9000);
 
-    try {
-      let res = await fetch("/api/websites/", {
-        method: "POST",
-        body: formData,
-      });
-      let resJson = await res.json();
-      resJson.log.map((el) => {
-        if (el.split(": ")[1] === `${website} created successfully`) {
-          sendNotification(el);
-        } else {
-          sendNotification([el, "danger"]);
-        }
-      });
+    let allowAction;
+    let question = prompt(
+      `If you really wanna backup websites write ${randomNumber} in this form:`,
+      "no"
+    );
 
-      sendNotification(`${resJson.message}`, "info");
-    } catch (err) {
-      sendNotification(["Something went wrong with api request", "danger"]);
+    if (question === `${randomNumber}`) {
+      allowAction = true;
+    } else {
+      allowAction = false;
     }
-    props.setModalToEdit(false);
+
+    if (allowAction) {
+      try {
+        let res = await fetch("/api/websites/", {
+          method: "POST",
+          body: formData,
+        });
+        let resJson = await res.json();
+        resJson.log.map((el) => {
+          if (el.split(": ")[1] === `${website} created successfully`) {
+            sendNotification(el);
+          } else {
+            sendNotification([el, "danger"]);
+          }
+        });
+
+        sendNotification(`${resJson.message}`, "info");
+      } catch (err) {
+        sendNotification(["Something went wrong with api request", "danger"]);
+      }
+      props.setModalToEdit(false);
+    } else {
+      sendNotification([`Action isn't allowed by client`, "danger"]);
+    }
+
     setBlockLoader(false);
   };
 
