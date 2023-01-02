@@ -5,6 +5,7 @@ import Modal from "../Modal";
 
 const AddWebsiteForm = (props) => {
   const [website, setWebsite] = useState("");
+  const [blockLoader, setBlockLoader] = useState(false);
 
   let nginxConfigExample = `server {
   server_name ${website} www.${website};
@@ -51,7 +52,6 @@ server {
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-
       let body = {
         password,
       };
@@ -109,7 +109,7 @@ server {
 
   const addWebsiteHandler = async (e) => {
     e.preventDefault();
-
+    setBlockLoader(true);
     if (website.length === 0) {
       return sendNotification(["Website cannot be blank", "danger"]);
     }
@@ -132,23 +132,28 @@ server {
     formData.append("nginx_config", nginxConfig);
     formData.append("files", websiteArchive.target.files[0]);
 
-    let res = await fetch("/api/websites/", {
-      method: "POST",
-      body: formData,
-    });
-    let resJson = await res.json();
-    resJson.log.map((el) => {
-      if (el.split(": ")[1] === `${website} created successfully`) {
-        sendNotification(el);
-      } else {
-        sendNotification([el, "danger"]);
-      }
-    });
-    props.getWebsites();
+    try {
+      let res = await fetch("/api/websites/", {
+        method: "POST",
+        body: formData,
+      });
+      let resJson = await res.json();
+      resJson.log.map((el) => {
+        if (el.split(": ")[1] === `${website} created successfully`) {
+          sendNotification(el);
+        } else {
+          sendNotification([el, "danger"]);
+        }
+      });
+      props.getWebsites();
 
-    itNeedsToRestartNginx ? setModal(true) : setModal(false);
+      itNeedsToRestartNginx ? setModal(true) : setModal(false);
+      sendNotification(`${resJson.message}`, "info");
+    } catch (err) {
+      sendNotification(["Something went wrong with api request", "danger"]);
+    }
 
-    return sendNotification(`${resJson.message}`, "info");
+    setBlockLoader(false);
   };
 
   const [modal, setModal] = useState();
@@ -159,7 +164,13 @@ server {
 
   return (
     <div className="content">
-      <div className="block block-rounded">
+      <div
+        className={
+          blockLoader
+            ? "block block-rounded block-mode-loading"
+            : "block block-rounded"
+        }
+      >
         <div className="block-header block-header-default">
           <h3 className="block-title">Add website</h3>
         </div>

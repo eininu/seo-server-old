@@ -6,9 +6,11 @@ const EditWebsiteForm = (props) => {
   const [website, setWebsite] = useState(props.website);
   const [nginxConfig, setNginxConfig] = useState(props.nginxConfig);
   const [websiteArchive, setWebsiteArchive] = useState("edit");
+  const [blockLoader, setBlockLoader] = useState(false);
 
   const editWebsiteHandler = async (e) => {
     e.preventDefault();
+    setBlockLoader(true);
     var formData = new FormData();
     formData.append("website", website);
     formData.append("nginx_config", nginxConfig);
@@ -17,25 +19,37 @@ const EditWebsiteForm = (props) => {
       formData.append("files", websiteArchive.target.files[0]);
     }
 
-    let res = await fetch("/api/websites/", {
-      method: "POST",
-      body: formData,
-    });
-    let resJson = await res.json();
-    resJson.log.map((el) => {
-      if (el.split(": ")[1] === `${website} created successfully`) {
-        sendNotification(el);
-      } else {
-        sendNotification([el, "danger"]);
-      }
-    });
+    try {
+      let res = await fetch("/api/websites/", {
+        method: "POST",
+        body: formData,
+      });
+      let resJson = await res.json();
+      resJson.log.map((el) => {
+        if (el.split(": ")[1] === `${website} created successfully`) {
+          sendNotification(el);
+        } else {
+          sendNotification([el, "danger"]);
+        }
+      });
+
+      sendNotification(`${resJson.message}`, "info");
+    } catch (err) {
+      sendNotification(["Something went wrong with api request", "danger"]);
+    }
     props.setModalToEdit(false);
-    return sendNotification(`${resJson.message}`, "info");
+    setBlockLoader(false);
   };
 
   return (
     <div className="content">
-      <div className="block block-rounded">
+      <div
+        className={
+          blockLoader
+            ? "block block-rounded block-mode-loading"
+            : "block block-rounded"
+        }
+      >
         <div className="block-header block-header-default">
           <h3 className="block-title">Edit website</h3>
         </div>

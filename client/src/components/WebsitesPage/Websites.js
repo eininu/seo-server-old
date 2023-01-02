@@ -6,6 +6,7 @@ import EditWebsiteForm from "./EditWebsiteForm";
 const Websites = (props) => {
   const [appState, setAppState] = useState(undefined);
   const [backupArchive, setBackupArchive] = useState();
+  const [blockLoader, setBlockLoader] = useState(false);
 
   useEffect(() => {
     checkStatus();
@@ -22,6 +23,7 @@ const Websites = (props) => {
   };
 
   const checkStatus = async () => {
+    setBlockLoader(true);
     let res = await fetch("/api/websites/");
     const resJson = await res.json();
 
@@ -32,6 +34,7 @@ const Websites = (props) => {
     if (resJson.message === "ok") {
       setAppState("configured");
     }
+    setBlockLoader(false);
   };
 
   const AskSudoPassword = () => {
@@ -95,6 +98,7 @@ const Websites = (props) => {
     );
   };
   const deleteWebsiteHandler = async (e) => {
+    setBlockLoader(true);
     e.preventDefault();
     const website = e.target.website.value;
 
@@ -116,12 +120,13 @@ const Websites = (props) => {
         sendNotification([el, "danger"]);
       }
     });
+    setBlockLoader(false);
     props.getWebsites();
   };
 
   const loadBackupHandler = async (e) => {
     e.preventDefault();
-
+    setBlockLoader(true);
     if (!backupArchive) {
       return sendNotification(["Backup Archive cannot be blank", "danger"]);
     }
@@ -134,14 +139,17 @@ const Websites = (props) => {
     });
     let resJson = await res.json();
     sendNotification(resJson.message);
+    setBlockLoader(false);
     props.getWebsites();
     setImportWebsitesModal(false);
   };
 
   const createBackupHandler = async (e) => {
     e.preventDefault();
+    setBlockLoader(true);
     const request = await fetch("/api/websites/backup");
     const requestJson = await request.json();
+    setBlockLoader(false);
     sendNotification(requestJson.message);
   };
 
@@ -150,13 +158,14 @@ const Websites = (props) => {
   const [nginxConfigToEdit, setNginxConfigToEdit] = useState();
   const editWebsiteHandler = async (e) => {
     e.preventDefault();
+    setBlockLoader(true);
     const website = e.target.website.value;
     const request = await fetch("/api/websites/config/" + website);
     const requestJson = await request.json();
     setWebsiteToEdit(website);
     setNginxConfigToEdit(requestJson.nginxConfig);
+    setBlockLoader(false);
     setModalToEdit(true);
-    console.log();
   };
 
   const closeEditModal = () => {
@@ -220,7 +229,13 @@ const Websites = (props) => {
 
         <div className="row">
           <div className="col-12">
-            <div className="block block-rounded">
+            <div
+              className={
+                blockLoader
+                  ? "block block-rounded block-mode-loading"
+                  : "block block-rounded"
+              }
+            >
               <div className="block-header block-header-default">
                 <h1 className="block-title">Websites</h1>
 
