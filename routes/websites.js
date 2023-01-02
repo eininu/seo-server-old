@@ -131,8 +131,8 @@ router.post(
       nginxConfig
     );
 
-    await dbRun(`INSERT INTO websites(website) VALUES (?)`, [website]);
     if (!itsEditAction) {
+      await dbRun(`INSERT INTO websites (website) VALUES ('${website}')`);
       await decompress(
         process.cwd() + "/websites/uploads/" + website + ".zip",
         process.cwd() + "/websites/" + website
