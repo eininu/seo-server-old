@@ -132,18 +132,20 @@ router.post(
     );
 
     await dbRun(`INSERT INTO websites(website) VALUES (?)`, [website]);
-
+    console.log("hi");
     if (!itsEditAction) {
       await decompress(
         process.cwd() + "/websites/uploads/" + website + ".zip",
         process.cwd() + "/websites/" + website
       );
     } else {
+      console.log("hi");
       if (fs.existsSync(process.cwd() + "/websites/" + website)) {
         fs.rmSync(process.cwd() + "/websites/" + website, {
           recursive: true,
           force: true,
         });
+        fs.mkdirSync(process.cwd() + "/websites/" + website);
       }
       await decompress(
         process.cwd() + "/websites/uploads/" + website + ".zip",
