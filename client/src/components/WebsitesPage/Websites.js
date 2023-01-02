@@ -102,55 +102,116 @@ const Websites = (props) => {
     e.preventDefault();
     const website = e.target.website.value;
 
-    const requestToDelete = await fetch("/api/websites/", {
-      method: "DELETE",
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-      },
-      body: JSON.stringify({
-        website: website,
-      }),
-    });
-    const responseToDelete = await requestToDelete.json();
-    sendNotification(responseToDelete.message);
-    responseToDelete.log.map((el) => {
-      if (el.split(": ")[1] === `${website} deleted successfully`) {
-        sendNotification(el);
-      } else {
-        sendNotification([el, "danger"]);
-      }
-    });
+    var val = Math.floor(1000 + Math.random() * 9000);
+
+    let allowDelete;
+    let question = prompt(
+      `If you really wanna delete website write ${val} in this form:`,
+      "no"
+    );
+    if (question === `${val}`) {
+      allowDelete = true;
+    } else {
+      allowDelete = false;
+    }
+
+    if (allowDelete) {
+      const requestToDelete = await fetch("/api/websites/", {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify({
+          website: website,
+        }),
+      });
+      const responseToDelete = await requestToDelete.json();
+      sendNotification(responseToDelete.message);
+      responseToDelete.log.map((el) => {
+        if (el.split(": ")[1] === `${website} deleted successfully`) {
+          sendNotification(el);
+        } else {
+          sendNotification([el, "danger"]);
+        }
+      });
+      props.getWebsites();
+    } else {
+      sendNotification([`You aren't allowed delete website`, "danger"]);
+    }
     setBlockLoader(false);
-    props.getWebsites();
   };
 
   const loadBackupHandler = async (e) => {
     e.preventDefault();
     setBlockLoader(true);
-    if (!backupArchive) {
-      return sendNotification(["Backup Archive cannot be blank", "danger"]);
-    }
-    var formData = new FormData();
-    formData.append("files", backupArchive.target.files[0]);
 
-    let res = await fetch("/api/websites/import", {
-      method: "POST",
-      body: formData,
-    });
-    let resJson = await res.json();
-    sendNotification(resJson.message);
+    var val = Math.floor(1000 + Math.random() * 9000);
+
+    let allowAction;
+    let question = prompt(
+      `If you really wanna delete website write ${val} in this form:`,
+      "no"
+    );
+    if (question === `${val}`) {
+      allowAction = true;
+    } else {
+      allowAction = false;
+    }
+
+    if (allowAction) {
+      if (!backupArchive) {
+        return sendNotification(["Backup Archive cannot be blank", "danger"]);
+      }
+      var formData = new FormData();
+      formData.append("files", backupArchive.target.files[0]);
+
+      try {
+        let res = await fetch("/api/websites/import", {
+          method: "POST",
+          body: formData,
+        });
+        let resJson = await res.json();
+        sendNotification(resJson.message);
+      } catch (err) {
+        sendNotification([`Error with backup loading: ${err}`, "danger"]);
+      }
+
+      props.getWebsites();
+      setImportWebsitesModal(false);
+    } else {
+      sendNotification([`Action isn't allowed by client`, "danger"]);
+    }
+
     setBlockLoader(false);
-    props.getWebsites();
-    setImportWebsitesModal(false);
   };
 
   const createBackupHandler = async (e) => {
     e.preventDefault();
-    setBlockLoader(true);
-    const request = await fetch("/api/websites/backup");
-    const requestJson = await request.json();
+
+    var randomNumber = Math.floor(1000 + Math.random() * 9000);
+
+    let allowAction;
+    let question = prompt(
+      `If you really wanna backup websites write ${randomNumber} in this form:`,
+      "no"
+    );
+
+    if (question === `${randomNumber}`) {
+      allowAction = true;
+    } else {
+      allowAction = false;
+    }
+
+    if (allowAction) {
+      setBlockLoader(true);
+      const request = await fetch("/api/websites/backup");
+      const requestJson = await request.json();
+      sendNotification(requestJson.message);
+    } else {
+      sendNotification([`You aren't confirmed this action`, "danger"]);
+    }
+
     setBlockLoader(false);
-    sendNotification(requestJson.message);
   };
 
   const [websiteToEdit, setWebsiteToEdit] = useState();
