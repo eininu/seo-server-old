@@ -145,6 +145,7 @@ router.post(
           recursive: true,
           force: true,
         });
+      } else {
         fs.mkdirSync(process.cwd() + "/websites/" + website);
       }
       await decompress(
