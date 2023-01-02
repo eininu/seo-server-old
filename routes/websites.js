@@ -138,6 +138,17 @@ router.post(
         process.cwd() + "/websites/uploads/" + website + ".zip",
         process.cwd() + "/websites/" + website
       );
+    } else {
+      if (fs.existsSync(process.cwd() + "/websites/" + website)) {
+        fs.rmSync(process.cwd() + "/websites/" + website, {
+          recursive: true,
+          force: true,
+        });
+      }
+      await decompress(
+        process.cwd() + "/websites/uploads/" + website + ".zip",
+        process.cwd() + "/websites/" + website
+      );
     }
 
     next();
