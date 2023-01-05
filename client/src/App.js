@@ -22,11 +22,11 @@ function App() {
     // sendNotification(`${appStatus}`);
 
     let res = await fetch("/api", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-      },
-      body: "",
+      // method: "POST",
+      // headers: {
+      //   "content-type": "application/json; charset=utf-8",
+      // },
+      // body: "",
     });
     let resJson = await res.json();
 
