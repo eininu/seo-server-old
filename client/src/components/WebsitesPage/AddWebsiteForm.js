@@ -121,37 +121,58 @@ server {
       return sendNotification(["Website Archive cannot be blank", "danger"]);
     }
 
-    // if (
-    //   websiteArchive.target.files[0].type !== "application/x-zip-compressed"
-    // ) {
-    //   return sendNotification(["Website File should be zip archive", "danger"]);
-    // }
+    var randomNumber = Math.floor(1000 + Math.random() * 9000);
 
-    var formData = new FormData();
-    formData.append("website", website);
-    formData.append("nginx_config", nginxConfig);
-    formData.append("files", websiteArchive.target.files[0]);
 
-    try {
-      let res = await fetch("/api/websites/", {
-        method: "POST",
-        body: formData,
-      });
-      let resJson = await res.json();
-      resJson.log.map((el) => {
-        if (el.split(": ")[1] === `${website} created successfully`) {
-          sendNotification(el);
-        } else {
-          sendNotification([el, "danger"]);
-        }
-      });
-      props.getWebsites();
+    let allowAction;
+    let question = prompt(
+        `If you really wanna backup websites write ${randomNumber} in this form:`,
+        "no"
+    );
 
-      itNeedsToRestartNginx ? setModal(true) : setModal(false);
-      sendNotification(`${resJson.message}`, "info");
-    } catch (err) {
-      sendNotification(["Something went wrong with api request", "danger"]);
+    if (question === `${randomNumber}`) {
+      allowAction = true;
+    } else {
+      allowAction = false;
     }
+
+    if (allowAction) {
+      // if (
+      //   websiteArchive.target.files[0].type !== "application/x-zip-compressed"
+      // ) {
+      //   return sendNotification(["Website File should be zip archive", "danger"]);
+      // }
+
+      var formData = new FormData();
+      formData.append("website", website);
+      formData.append("nginx_config", nginxConfig);
+      formData.append("files", websiteArchive.target.files[0]);
+
+      try {
+        let res = await fetch("/api/websites/", {
+          method: "POST",
+          body: formData,
+        });
+        let resJson = await res.json();
+        resJson.log.map((el) => {
+          if (el.split(": ")[1] === `${website} created successfully`) {
+            sendNotification(el);
+          } else {
+            sendNotification([el, "danger"]);
+          }
+        });
+        props.getWebsites();
+
+        itNeedsToRestartNginx ? setModal(true) : setModal(false);
+        sendNotification(`${resJson.message}`, "info");
+      } catch (err) {
+        sendNotification(["Something went wrong with api request", "danger"]);
+      }
+    } else {
+      sendNotification([`You aren't approved action manually`, 'danger'])
+    }
+
+
 
     setBlockLoader(false);
   };
