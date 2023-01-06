@@ -24,7 +24,7 @@ checkTimeout = (req, res, next) => {
 router.post("/", async (req, res) => {
   let result;
 
-  const randomJwt = `${Math.random().toString(36).slice(-8)}`;
+  const randomJwt = `${new Array(36).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(x => (function(chars) { let umax = Math.pow(2, 32), r = new Uint32Array(1), max = umax - (umax % chars.length); do { crypto.getRandomValues(r); } while(r[0] > max); return chars[r[0] % chars.length]; })(x)).join('')}`;
 
   const password = req.body.password;
   const tgToken = req.body.tgToken;
