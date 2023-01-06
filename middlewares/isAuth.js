@@ -6,9 +6,10 @@ isAuth = async (req, res, next) => {
   const serversFromDb = await dbAll(`SELECT t.* FROM servers t LIMIT 501`);
   const servers = serversFromDb.map((el) => el.server_ip);
 
-  if (process.env.NODE_ENV === "development") {
-    next();
-  } else if (servers.includes(req.ip)) {
+  // if (process.env.NODE_ENV === "development") {
+  //   next();
+  // } else
+    if (servers.includes(req.ip)) {
     next();
   } else {
     const jwtSecretQuery = await dbAll(
