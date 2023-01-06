@@ -1,4 +1,10 @@
+import {useState} from "react";
+
+
+
 const NavBar = () => {
+  const [mobileMenu, setMobileMenu] = useState(false);
+
   return (
     <div className="bg-primary-darker">
       <div className="content py-3">
@@ -11,10 +17,10 @@ const NavBar = () => {
             data-class="d-none"
           >
             Menu
-            <i className="fa fa-bars"></i>
+            <i className="fa fa-bars" onClick={() => setMobileMenu(!mobileMenu)}></i>
           </button>
         </div>
-        <div id="main-navigation" className="d-none d-lg-block mt-2 mt-lg-0">
+        <div id="main-navigation" className={mobileMenu ? "d-lg-block mt-2 mt-lg-0" : "d-none d-lg-block mt-2 mt-lg-0"}>
           <ul className="nav-main nav-main-dark nav-main-horizontal nav-main-hover">
             <li className="nav-main-item">
               <a className="nav-main-link active" href="/">
