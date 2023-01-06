@@ -15,6 +15,34 @@ const data = {
     ],
 };
 
+const options = {
+    datasetIdKey: "js-chartjs-total-orders",
+    responsive: true,
+    plugins: {
+        legend: {
+            position: 'top',
+            display: false,
+        },
+        title: {
+            display: false,
+            text: 'Chart.js Line Chart',
+        },
+    },
+};
+
+const data2 = {
+    labels,
+    datasets: [
+        {
+            fill: true,
+            label: 'Dataset 2',
+            data: [0, 10, 5, 2, 20, 30, 45],
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        },
+    ],
+};
+
 const IndexPage = () => {
   return (
     <main id="main-container">
@@ -72,8 +100,9 @@ const IndexPage = () => {
                       </div>
                       <div className="block-content block-content-full flex-grow-1 d-flex align-items-center">
 
+                          <Line options={options} data={data2} />
+                          {/*<Line data={data} />*/}
 
-                          <Line data={data} />
                           {/*<canvas id="js-chartjs-earnings"*/}
                           {/*        // style="display: block; box-sizing: border-box; height: 511px; width: 1023px;"*/}
                           {/*        width="1023" height="511"></canvas>*/}
