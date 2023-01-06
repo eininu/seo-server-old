@@ -5,9 +5,7 @@ const NavBar = () => {
 
   const currentPathName = window.location.pathname;
 
-  useEffect(() => {
-    console.log(currentPathName);
-  });
+  useEffect(() => {});
 
   return (
     <div className="bg-primary-darker">
@@ -19,6 +17,7 @@ const NavBar = () => {
             data-toggle="class-toggle"
             data-target="#main-navigation"
             data-class="d-none"
+            onClick={() => setMobileMenu(!mobileMenu)}
           >
             Menu
             <i
