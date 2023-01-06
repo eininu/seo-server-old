@@ -1,6 +1,24 @@
+import Chart from "chart.js/auto";
+import { Line } from "react-chartjs-2";
+
+const labels = ["January", "February", "March", "April", "May", "June"];
+
+const data = {
+    labels: labels,
+    datasets: [
+        {
+            label: "My First dataset",
+            backgroundColor: "rgb(255, 99, 132)",
+            borderColor: "rgb(255, 99, 132)",
+            data: [0, 10, 5, 2, 20, 30, 45],
+        },
+    ],
+};
+
 const IndexPage = () => {
   return (
     <main id="main-container">
+
       <div className="content">
           <div className="row">
               <div className="col-6 col-md-3 col-lg-6 col-xl-3">
@@ -53,9 +71,9 @@ const IndexPage = () => {
                           </div>
                       </div>
                       <div className="block-content block-content-full flex-grow-1 d-flex align-items-center">
-                          
-                          
-                          
+
+
+                          <Line data={data} />
                           {/*<canvas id="js-chartjs-earnings"*/}
                           {/*        // style="display: block; box-sizing: border-box; height: 511px; width: 1023px;"*/}
                           {/*        width="1023" height="511"></canvas>*/}
