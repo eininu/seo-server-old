@@ -3,6 +3,8 @@ const { dbRun } = require("../database/database");
 const { tgTestConfigure } = require("../modules/telegram");
 const fs = require("fs");
 const router = express.Router();
+const crypto = require('node:crypto');
+
 
 const setAuthCode = () => `${Math.floor(100000 + Math.random() * 900000)}`;
 
