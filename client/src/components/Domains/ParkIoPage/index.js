@@ -5,10 +5,15 @@ const ParkIoPage = () => {
   const [auctions, setAuctions] = useState([]);
   const [domains, setDomains] = useState([]);
   const [auctionsBuffer, setAuctionsBuffer] = useState("");
+  const [domainsBuffer, setDomainsBuffer] = useState("");
 
   const createAuctionBuffer = () => {
     const result = auctions.join("\n");
     setAuctionsBuffer((data) => data + result);
+  };
+  const createDomainsBuffer = () => {
+    const result = domains.join("\n");
+    setDomainsBuffer((data) => data + result);
   };
 
   const getData = () => {
@@ -110,8 +115,16 @@ const ParkIoPage = () => {
                     onClick={createAuctionBuffer}
                   ></i>{" "}
                   <i
-                    className={"si si-refresh"}
-                    onClick={() => fetch("/api/park.io/get_domains")}
+                    className={
+                      auctions.length === 0
+                        ? "si si-refresh animated flash"
+                        : "si si-refresh"
+                    }
+                    onClick={async () => {
+                      await setAuctions([]);
+                      await fetch("/api/park.io/get_auctions");
+                      await getData();
+                    }}
                   ></i>
                 </div>
               </CopyToClipboard>
@@ -132,9 +145,33 @@ const ParkIoPage = () => {
               className={
                 domains.length === 0
                   ? "block block-rounded block-link-shadow text-center block-mode-loading"
-                  : "block block-rounded block-link-shadow text-center"
+                  : "block block-rounded block-link-shadow text-center ribbon"
               }
             >
+              <CopyToClipboard text={`${domainsBuffer}`}>
+                <div className="ribbon-box" style={{ cursor: "pointer" }}>
+                  <i
+                    className={
+                      domainsBuffer.length === 0
+                        ? "fa fa-fw fa-file"
+                        : "fa fa-check"
+                    }
+                    onClick={createDomainsBuffer}
+                  ></i>{" "}
+                  <i
+                    className={
+                      domains.length === 0
+                        ? "si si-refresh animated flash"
+                        : "si si-refresh"
+                    }
+                    onClick={async () => {
+                      await setDomains([]);
+                      await fetch("/api/park.io/get_domains");
+                      await getData();
+                    }}
+                  ></i>
+                </div>
+              </CopyToClipboard>
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
                   {domains.length === 0 ? "..." : domains.length}
