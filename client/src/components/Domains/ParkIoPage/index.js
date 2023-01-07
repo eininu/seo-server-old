@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 const ParkIoPage = () => {
   const [auctions, setAuctions] = useState([]);
   const [domains, setDomains] = useState([]);
+  const [auctionsBuffer, setAuctionsBuffer] = useState("");
+
+  const createAuctionBuffer = async () => {
+    const result = auctions.join("\n");
+    setAuctionsBuffer(result);
+  };
 
   const getData = () => {
     fetch("/api/park.io")
@@ -89,9 +96,25 @@ const ParkIoPage = () => {
               className={
                 auctions.length === 0
                   ? "block block-rounded block-link-shadow text-center block-mode-loading"
-                  : "block block-rounded block-link-shadow text-center"
+                  : "block block-rounded block-link-shadow text-center ribbon ribbon-primary ribbon-bottom ribbon-modern"
               }
             >
+              <CopyToClipboard text={`${auctionsBuffer}`}>
+                <div
+                  className="ribbon-box"
+                  style={{ cursor: "pointer" }}
+                  onClick={createAuctionBuffer}
+                >
+                  <i
+                    className={
+                      auctionsBuffer.length === 0
+                        ? "fa fa-fw fa-file"
+                        : "fa fa-check"
+                    }
+                  ></i>
+                </div>
+              </CopyToClipboard>
+
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
                   {auctions.length === 0 ? "..." : auctions.length}
