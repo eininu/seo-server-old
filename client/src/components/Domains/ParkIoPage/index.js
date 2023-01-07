@@ -9,7 +9,6 @@ const ParkIoPage = () => {
         return data.json();
       })
       .then((data) => {
-        console.log(data);
         if (data.auctionsJson === undefined) {
           fetch("/api/park.io/get_auctions").then(() => getData());
         }
