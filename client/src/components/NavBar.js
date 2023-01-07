@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const NavBar = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [submenuActive, setSubmenuActive] = useState(false);
 
   const currentPathName = window.location.pathname;
-
-  useEffect(() => {});
 
   return (
     <div className="bg-primary-darker">
@@ -73,6 +72,33 @@ const NavBar = () => {
                 <i className="nav-main-link-icon fa fa-server"></i>
                 <span className="nav-main-link-name">Servers</span>
               </a>
+            </li>
+            <li
+              className={submenuActive ? "nav-main-item open" : "nav-main-item"}
+            >
+              <a
+                className="nav-main-link nav-main-link-submenu"
+                data-toggle="submenu"
+                aria-haspopup="true"
+                aria-expanded="false"
+                // href="#"
+                style={{ cursor: "pointer" }}
+              >
+                <i className="nav-main-link-icon si si-puzzle"></i>
+                <span
+                  className="nav-main-link-name"
+                  onClick={() => setSubmenuActive(!submenuActive)}
+                >
+                  Domains
+                </span>
+              </a>
+              <ul className="nav-main-submenu">
+                <li className="nav-main-item">
+                  <a className="nav-main-link" href="/domains/park.io">
+                    <span className="nav-main-link-name">park.io</span>
+                  </a>
+                </li>
+              </ul>
             </li>
             <li className="nav-main-item">
               <a
