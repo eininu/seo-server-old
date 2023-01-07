@@ -100,17 +100,18 @@ const ParkIoPage = () => {
               }
             >
               <CopyToClipboard text={`${auctionsBuffer}`}>
-                <div
-                  className="ribbon-box"
-                  style={{ cursor: "pointer" }}
-                  onClick={createAuctionBuffer}
-                >
+                <div className="ribbon-box" style={{ cursor: "pointer" }}>
                   <i
                     className={
                       auctionsBuffer.length === 0
                         ? "fa fa-fw fa-file"
                         : "fa fa-check"
                     }
+                    onClick={createAuctionBuffer}
+                  ></i>{" "}
+                  <i
+                    className={"si si-refresh"}
+                    onClick={() => fetch("/api/park.io/get_domains")}
                   ></i>
                 </div>
               </CopyToClipboard>
