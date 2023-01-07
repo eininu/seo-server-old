@@ -351,7 +351,7 @@ let domainsJson;
 let auctionsJson;
 
 router.get("/", async (req, res) => {
-  res.send({ awesomeDomains, domainsJson, auctionsJson });
+  res.send({ auctionsJson, domainsJson });
 });
 
 router.get("/awesome_domains", async (req, res) => {
@@ -384,7 +384,7 @@ router.get("/get_auctions", async (req, res) => {
     new Promise((resolve) => {
       setTimeout(() => {
         resolve();
-      }, 3000);
+      }, 1000);
     });
   await sleep();
 

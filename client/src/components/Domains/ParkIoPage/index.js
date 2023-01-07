@@ -3,29 +3,24 @@ import { useEffect, useState } from "react";
 const ParkIoPage = () => {
   const [data, setData] = useState();
 
-  const [auctions, setAuctions] = useState({});
-  const [domains, setDomains] = useState({});
+  const getData = async () => {
+    let request = await fetch("/api/park.io/");
+    let requestJson = await request.json();
+    if (requestJson.auctionsJson === undefined) {
+      await fetch("/api/park.io/get_auctions");
+      return await getData();
+    }
+    if (requestJson.domainsJson === undefined) {
+      await fetch("/api/park.io/get_domains");
+      return await getData();
+    }
 
-  const getData = () =>
-    fetch("/api/park.io/")
-      .then((data) => {
-        return data.json();
-      })
-      .then((data) => {
-        data.auctionsJson ? setAuctions(data.auctionsJson) : getAuctions();
-        data.domainsJson ? setDomains(data.domainsJson) : getDomains();
-
-        return setData(data);
-      });
-
-  const getAuctions = () =>
-    fetch("/api/park.io/get_auctions").then(() => getData());
-  const getDomains = () =>
-    fetch("/api/park.io/get_domains").then(() => getData());
+    return setData(requestJson);
+  };
 
   useEffect(() => {
     getData();
-  }, []);
+  }, data);
 
   return (
     <main id="main-container">
@@ -64,35 +59,41 @@ const ParkIoPage = () => {
       <div className="content">
         <div className="row">
           <div className="col-6 col-lg-6">
-            <a
-              className="block block-rounded block-link-shadow text-center"
-              href="#"
+            <div
+              className={
+                !data
+                  ? "block block-rounded block-link-shadow text-center block-mode-loading"
+                  : "block block-rounded block-link-shadow text-center"
+              }
             >
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
-                  {auctions.count}
+                  {!data ? "..." : `${JSON.stringify(data.auctionsJson.count)}`}
                 </div>
               </div>
               <div className="block-content py-2 bg-body-light">
                 <p className="fw-medium fs-sm text-muted mb-0">Auctions</p>
               </div>
-            </a>
+            </div>
           </div>
 
           <div className="col-6 col-lg-6">
-            <a
-              className="block block-rounded block-link-shadow text-center"
-              href="#"
+            <div
+              className={
+                !data
+                  ? "block block-rounded block-link-shadow text-center block-mode-loading"
+                  : "block block-rounded block-link-shadow text-center"
+              }
             >
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
-                  {domains.count}
+                  {!data ? "..." : `${JSON.stringify(data.domainsJson.count)}`}
                 </div>
               </div>
               <div className="block-content py-2 bg-body-light">
                 <p className="fw-medium fs-sm text-muted mb-0">Domains</p>
               </div>
-            </a>
+            </div>
           </div>
         </div>
         <div className="block block-rounded">
