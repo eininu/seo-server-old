@@ -6,9 +6,9 @@ const ParkIoPage = () => {
   const [domains, setDomains] = useState([]);
   const [auctionsBuffer, setAuctionsBuffer] = useState("");
 
-  const createAuctionBuffer = async () => {
+  const createAuctionBuffer = () => {
     const result = auctions.join("\n");
-    setAuctionsBuffer(result);
+    setAuctionsBuffer((data) => data + result);
   };
 
   const getData = () => {
