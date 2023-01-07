@@ -3,19 +3,24 @@ import { useEffect, useState } from "react";
 const ParkIoPage = () => {
   const [data, setData] = useState();
 
-  const getData = async () => {
-    let request = await fetch("/api/park.io/");
-    let requestJson = await request.json();
-    if (requestJson.auctionsJson === undefined) {
-      await fetch("/api/park.io/get_auctions");
-      return await getData();
-    }
-    if (requestJson.domainsJson === undefined) {
-      await fetch("/api/park.io/get_domains");
-      return await getData();
-    }
+  const getData = () => {
+    fetch("/api/park.io/")
+      .then((data) => {
+        return data.json();
+      })
+      .then((data) => {
+        console.log(data);
+        if (data.auctionsJson === undefined) {
+          fetch("/api/park.io/get_auctions").then(() => getData());
+        }
+        if (data.domainsJson === undefined) {
+          fetch("/api/park.io/get_domains").then(() => getData());
+        }
 
-    return setData(requestJson);
+        if (data.auctionsJson !== undefined && data.domainsJson !== undefined) {
+          setData(data);
+        }
+      });
   };
 
   useEffect(() => {
