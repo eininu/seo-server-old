@@ -21,7 +21,7 @@
     "form-data": "^4.0.0",
     "http-errors": "^2.0.0",
     "jsdom": "^20.0.3",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "liquidjs": "^10.3.3",
     "megajs": "^1.1.1",
     "mime": "^3.0.0",
