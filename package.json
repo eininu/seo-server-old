@@ -20,6 +20,7 @@
     "express": "^4.16.1",
     "form-data": "^4.0.0",
     "http-errors": "^2.0.0",
+    "jsdom": "^20.0.3",
     "jsonwebtoken": "^8.5.1",
     "liquidjs": "^10.3.3",
     "megajs": "^1.1.1",

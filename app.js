@@ -16,6 +16,7 @@ const websitesRouter = require("./routes/websites");
 const shellRouter = require("./routes/shell");
 const syncRouter = require("./routes/sync");
 const serversRouter = require("./routes/servers");
+const parkIoRouter = require("./routes/domains/park.io");
 
 var app = express();
 
@@ -50,6 +51,7 @@ app.use("/api/settings", settingsRouter);
 app.use("/api/websites", websitesRouter);
 app.use("/api/shell", shellRouter);
 app.use("/api/servers", serversRouter);
+app.use("/api/park.io", parkIoRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
