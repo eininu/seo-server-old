@@ -17,38 +17,38 @@ const ParkIoPage = () => {
         return data.json();
       })
       .then((data) => {
-        if (!data.auctionsJson) {
-          getAuctions();
-        } else {
-          data.auctionsJson.auctions.map((el) => {
-            setAuctions((auc) => [...auc, el.name]);
-          });
-        }
-        if (!data.domainsJson) {
-          getDomains();
-        } else {
-          data.domainsJson.domains.map((el) => {
-            setDomains((dom) => [...dom, el.name]);
-          });
-        }
+        getAuctions(data);
+        getDomains(data);
       });
   };
-  const getAuctions = async () => {
-    const req = await fetch("/api/park.io/get_auctions");
-    const reqJson = await req.json();
+  const getAuctions = async (data) => {
+    if (!data.auctionsJson) {
+      const req = await fetch("/api/park.io/get_auctions");
+      const reqJson = await req.json();
 
-    reqJson.auctions.map((el) => {
-      setAuctions((auc) => [...auc, el.name]);
-    });
+      reqJson.auctions.map((el) => {
+        setAuctions((auc) => [...auc, el.name]);
+      });
+    } else {
+      data.auctionsJson.auctions.map((el) => {
+        setAuctions((auc) => [...auc, el.name]);
+      });
+    }
   };
 
-  const getDomains = async () => {
-    const req = await fetch("/api/park.io/get_domains");
-    const reqJson = await req.json();
+  const getDomains = async (data) => {
+    if (!data.domainsJson) {
+      const req = await fetch("/api/park.io/get_domains");
+      const reqJson = await req.json();
 
-    reqJson.domains.map((el) => {
-      setDomains((dom) => [...dom, el.name]);
-    });
+      reqJson.domains.map((el) => {
+        setDomains((dom) => [...dom, el.name]);
+      });
+    } else {
+      data.domainsJson.domains.map((el) => {
+        setDomains((dom) => [...dom, el.name]);
+      });
+    }
   };
 
   useEffect(() => {
