@@ -96,7 +96,7 @@ const ParkIoPage = () => {
               className={
                 auctions.length === 0
                   ? "block block-rounded block-link-shadow text-center block-mode-loading"
-                  : "block block-rounded block-link-shadow text-center ribbon ribbon-primary ribbon-bottom ribbon-modern"
+                  : "block block-rounded block-link-shadow text-center ribbon"
               }
             >
               <CopyToClipboard text={`${auctionsBuffer}`}>
