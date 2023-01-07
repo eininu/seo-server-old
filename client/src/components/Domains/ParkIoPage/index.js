@@ -1,30 +1,52 @@
 import { useEffect, useState } from "react";
 
 const ParkIoPage = () => {
-  const [data, setData] = useState();
+  const [auctions, setAuctions] = useState([]);
+  const [domains, setDomains] = useState([]);
 
   const getData = () => {
-    fetch("/api/park.io/")
+    fetch("/api/park.io")
       .then((data) => {
         return data.json();
       })
       .then((data) => {
-        if (data.auctionsJson === undefined) {
-          fetch("/api/park.io/get_auctions").then(() => getData());
+        if (!data.auctionsJson) {
+          getAuctions();
+        } else {
+          data.auctionsJson.auctions.map((el) => {
+            setAuctions((auc) => [...auc, el.name]);
+          });
         }
-        if (data.domainsJson === undefined) {
-          fetch("/api/park.io/get_domains").then(() => getData());
-        }
-
-        if (data.auctionsJson !== undefined && data.domainsJson !== undefined) {
-          setData(data);
+        if (!data.domainsJson) {
+          getDomains();
+        } else {
+          data.domainsJson.domains.map((el) => {
+            setDomains((dom) => [...dom, el.name]);
+          });
         }
       });
+  };
+  const getAuctions = async () => {
+    const req = await fetch("/api/park.io/get_auctions");
+    const reqJson = await req.json();
+
+    reqJson.auctions.map((el) => {
+      setAuctions((auc) => [...auc, el.name]);
+    });
+  };
+
+  const getDomains = async () => {
+    const req = await fetch("/api/park.io/get_domains");
+    const reqJson = await req.json();
+
+    reqJson.domains.map((el) => {
+      setDomains((dom) => [...dom, el.name]);
+    });
   };
 
   useEffect(() => {
     getData();
-  }, data);
+  }, []);
 
   return (
     <main id="main-container">
@@ -65,14 +87,14 @@ const ParkIoPage = () => {
           <div className="col-6 col-lg-6">
             <div
               className={
-                !data
+                auctions.length === 0
                   ? "block block-rounded block-link-shadow text-center block-mode-loading"
                   : "block block-rounded block-link-shadow text-center"
               }
             >
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
-                  {!data ? "..." : `${JSON.stringify(data.auctionsJson.count)}`}
+                  {auctions.length === 0 ? "..." : auctions.length}
                 </div>
               </div>
               <div className="block-content py-2 bg-body-light">
@@ -84,14 +106,14 @@ const ParkIoPage = () => {
           <div className="col-6 col-lg-6">
             <div
               className={
-                !data
+                domains.length === 0
                   ? "block block-rounded block-link-shadow text-center block-mode-loading"
                   : "block block-rounded block-link-shadow text-center"
               }
             >
               <div className="block-content block-content-full">
                 <div className="fs-2 fw-semibold text-dark">
-                  {!data ? "..." : `${JSON.stringify(data.domainsJson.count)}`}
+                  {domains.length === 0 ? "..." : domains.length}
                 </div>
               </div>
               <div className="block-content py-2 bg-body-light">
