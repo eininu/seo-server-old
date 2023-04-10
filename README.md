@@ -1,4 +1,4 @@
-# jp9.org
+# seo-server
 A simple web server with a set of tools, mainly focused on solving personal work tasks.
 
 ## 1. Deploy
@@ -30,8 +30,8 @@ Instruction to deploy on clean CentOS Stream 9 server. If you know how work with
 
 ### Working with repository & configure app
 - `cd`
-- `git clone https://github.com/eininu/jp9.org.git`
-- `cd jp9.org`
+- `git clone https://github.com/eininu/seo-server.git`
+- `cd seo-server`
 - `npm install`
 - `npm run setup`
 - `npm run client:build`
@@ -66,13 +66,13 @@ If you weren't get similar response by curl - something went wrong in previous s
 So, now you can exactly check your api connection by server_ip:3001. It should work.
 
 #### Configure custom ports
-- `sudo nano /etc/nginx/conf.d/jp9.conf`
+- `sudo nano /etc/nginx/conf.d/seo-server.conf`
 ```
 server {
         server_name 0.0.0.0;
         proxy_set_header X-Forwarded-For $remote_addr;
         location / {
-                root /home/ein/jp9.org/client/build;
+                root /home/ein/seo-server/client/build;
                 index index.html;
                 
                 try_files $uri /index.html;
@@ -96,7 +96,7 @@ server {
 
 ## 2. Usage
 For using `websites` - add following line to your nginx.conf config for read configs from your app (at the end of http param, virtual hosts config).
-- `include /home/ein/jp9.org/nginx-configs/*.conf;`
+- `include /home/ein/seo-server/nginx-configs/*.conf;`
 
 For using https in your webistes - don't forgot to make ssl.
 

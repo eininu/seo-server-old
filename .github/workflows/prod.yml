@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT }}
           script: |
-            cd jp9.org
+            cd seo-server
             git pull
             npm i
             npm run setup
