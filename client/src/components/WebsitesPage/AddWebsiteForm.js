@@ -10,10 +10,10 @@ const AddWebsiteForm = (props) => {
   let nginxConfigExample = `server {
   server_name ${website} www.${website};
   index index.html;
-  root /home/ein/jp9.org/websites/${website};
+  root /home/ein/seo-server/websites/${website};
 
   location / {
-    try_files $uri /index.html;  
+    try_files $uri $uri/index.html;
   }
 
   location /api/ {
@@ -29,10 +29,10 @@ server {
   ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
   ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
   index index.html;
-  root /home/ein/jp9.org/websites/${website};
+  root /home/ein/seo-server/websites/${website};
 
   location / {
-    try_files $uri /index.html;  
+    try_files $uri $uri/index.html;
   }
 
   location /api/ {
