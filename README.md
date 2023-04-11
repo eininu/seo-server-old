@@ -113,3 +113,8 @@ Don't forget set repository secrets like:
 - PASSWORD (your username sudo password)
 - PORT (22 or another port for ssh)
 - USERNAME (username that own seo-server project)
+
+### Backup Websites
+For using websites manually backup don't forget to set this params in /settings area.
+- meganz_login (your login on mega.io)
+- meganz_password (your password)
