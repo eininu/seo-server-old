@@ -22,7 +22,8 @@ const shell = require("shelljs");
 router.post("/reload", (req, res) => {
   const password = req.body.password;
   // const command = shell.exec("whoami");
-  const command = shell.exec(`echo ${password} | sudo -S nginx -s reload`);
+  // const command = shell.exec(`echo ${password} | sudo -S nginx -s reload`);
+  const command = shell.exec(`echo ${password} | sudo systemctl restart nginx`);
   res.send({ message: `If password was correct - nginx was reloaded` });
 });
 
